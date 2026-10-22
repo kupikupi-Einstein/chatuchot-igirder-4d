@@ -1,0 +1,1191 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>I-Girder Erection 4D</title>
+<meta name="theme-color" content="#0b1f33">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-32.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b1220;--panel:rgba(12,18,30,.74);--panel2:rgba(20,28,44,.85);--line:rgba(255,255,255,.09);--txt:#e9eef5;--mut:#93a1b5;--acc:#f0b429;--acc2:#22b8cf;--wip:#ff8a3d;--ok:#51cf66;--bad:#ff6b6b}
+body[data-ui="light"]{--panel:rgba(255,255,255,.82);--panel2:rgba(245,247,250,.92);--line:rgba(10,20,40,.10);--txt:#13202f;--mut:#55657a;--acc:#c47f00;--acc2:#0b7285}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:'IBM Plex Sans Thai',system-ui,sans-serif;font-size:13px}
+#c{position:fixed;inset:0;display:block}
+.glass{background:var(--panel);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+button{font:inherit;font-size:12px;color:var(--txt);background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:5px 8px;cursor:pointer;white-space:nowrap}
+button:hover{border-color:var(--acc)} button.on{background:var(--acc);color:#111;border-color:var(--acc)}
+select,input[type=range]{accent-color:var(--acc)}
+select{font:inherit;color:var(--txt);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:5px}
+#top{position:fixed;left:12px;right:12px;top:12px;display:flex;align-items:center;gap:12px;padding:7px 12px;z-index:5;height:56px}
+#brand{display:flex;flex-direction:column;min-width:0;flex:1}
+#brand b{font-size:15px;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#brand span{color:var(--mut);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#topbtns{margin-left:auto;display:flex;gap:5px;flex-wrap:nowrap;justify-content:flex-end;align-items:center}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;border-radius:0;background:transparent}
+.seg button.on{background:var(--acc);color:#111}
+#left{position:fixed;left:12px;top:78px;bottom:126px;width:390px;display:flex;flex-direction:column;z-index:4}
+#tabs{display:flex;gap:4px;padding:8px 36px 0 8px}
+#tabs button{flex:1;font-size:12px;padding:6px 4px}
+#tabbody{flex:1;overflow:auto;padding:10px 12px 12px}
+#right{position:fixed;right:12px;top:78px;width:300px;max-height:calc(100% - 200px);overflow:auto;padding:12px;z-index:4}
+#bottom{position:fixed;left:12px;right:12px;bottom:12px;padding:10px 14px;z-index:5;display:flex;flex-direction:column;gap:6px}
+#tlrow{display:flex;align-items:center;gap:10px}
+#tlwrap{position:relative;flex:1;height:22px}
+#tlwrap input{position:absolute;inset:0;width:100%;margin:0}
+#ticks{position:relative;height:30px;font-size:10.5px;color:var(--mut)}
+#ticks div{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+#ticks div.ms{color:var(--acc);top:15px!important}
+#dateBig{font-size:26px;font-weight:600;line-height:1.1}
+.mut{color:var(--mut)} .acc{color:var(--acc)}
+h3{margin:12px 0 6px;font-size:13px;color:var(--acc);text-transform:uppercase;letter-spacing:.6px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.kpi{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px}
+.kpi b{display:block;font-size:18px}
+.kpi span{font-size:11px;color:var(--mut)}
+.bar{height:6px;background:rgba(127,127,127,.25);border-radius:4px;overflow:hidden;margin-top:5px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc2),var(--acc))}
+#act{list-style:none;padding:0;margin:0}
+#act li{padding:6px 8px;border-left:3px solid var(--wip);background:var(--panel2);border-radius:6px;margin-bottom:5px;font-size:12px}
+#act li small{display:block;color:var(--mut)}
+.grow{display:grid;grid-template-columns:150px 1fr;align-items:center;gap:6px;font-size:11.5px;padding:2px 0;cursor:pointer}
+.grow:hover .gl{color:var(--acc)}
+.gl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gt{position:relative;height:12px;background:rgba(127,127,127,.12);border-radius:3px}
+.gb{position:absolute;top:2px;height:8px;border-radius:3px;background:var(--acc2)}
+.gb.as{background:repeating-linear-gradient(45deg,#7c8aa0 0 4px,#5c6a80 4px 8px)}
+.gb .pg{position:absolute;left:0;top:0;bottom:0;background:var(--acc);border-radius:3px}
+#gnow{position:absolute;top:0;bottom:0;width:2px;background:var(--bad);pointer-events:none}
+.ms-step{border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding:8px 10px;margin-bottom:8px;cursor:pointer}
+.ms-step.cur{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+.ms-step b{display:block}
+.ms-step .d{font-size:11px;color:var(--acc2)}
+.ms-step ul{margin:5px 0 0;padding-left:16px;color:var(--mut);font-size:11.5px}
+.cat{display:flex;align-items:center;gap:8px;padding:4px 0}
+.cat i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.cat label{flex:1;cursor:pointer}
+table.cyc{width:100%;border-collapse:collapse;font-size:11.5px}
+table.cyc td{border-bottom:1px solid var(--line);padding:3px 4px}
+#props{position:fixed;right:324px;top:78px;width:300px;padding:12px;z-index:6;display:none}
+#props table{width:100%;font-size:12px;border-collapse:collapse}
+#props td{padding:3px 2px;border-bottom:1px solid var(--line);vertical-align:top}
+#props td:first-child{color:var(--mut);width:42%}
+#hud{position:fixed;inset:0;pointer-events:none;z-index:3;display:none;font-family:ui-monospace,Consolas,monospace;color:#e9fff4;text-shadow:0 0 4px #000}
+#hud .lb{position:absolute;left:0;right:0;height:9vh;background:#000}
+#hud .tl{position:absolute;left:3%;top:12vh;font-size:13px;line-height:1.6}
+#hud .tr{position:absolute;right:3%;top:12vh;font-size:13px;line-height:1.6;text-align:right}
+#hud .bl{position:absolute;left:3%;bottom:12vh;font-size:13px}
+#hud .cross{position:absolute;left:50%;top:50%;width:140px;height:90px;transform:translate(-50%,-50%);border:1px solid rgba(255,255,255,.5);border-radius:4px}
+#hud .cross:before,#hud .cross:after{content:"";position:absolute;background:rgba(255,255,255,.7)}
+#hud .cross:before{left:50%;top:30%;bottom:30%;width:1px}
+#hud .cross:after{top:50%;left:40%;right:40%;height:1px}
+#hud .rec{color:#ff4d4d}
+#caption{position:fixed;left:50%;bottom:14vh;transform:translateX(-50%);z-index:6;font-size:22px;font-weight:600;padding:10px 22px;display:none;text-align:center;max-width:86vw}
+#caption small{display:block;font-size:13px;font-weight:400;color:var(--mut)}
+#loading{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:#0b1220;color:#e9eef5;transition:opacity .6s}
+#loading .sp{width:44px;height:44px;border:3px solid rgba(255,255,255,.15);border-top-color:#f0b429;border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#flyhelp{position:fixed;left:50%;top:84px;transform:translateX(-50%);z-index:6;padding:6px 14px;display:none;font-size:12px}
+body.noui #top,body.noui #left,body.noui #right,body.noui #bottom,body.noui #props{display:none!important}
+body.hideL #left{display:none!important} body.hideR #right{display:none!important}
+.pclose{position:absolute;top:6px;right:6px;z-index:2;padding:1px 7px;font-size:11px;line-height:1.4;border-radius:7px;opacity:.75}
+.pclose:hover{opacity:1}
+#modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(620px,calc(100% - 32px));max-height:calc(100% - 60px);overflow:auto;z-index:30;padding:18px;display:none}
+#modalBack{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:29;display:none}
+#drop{border:2px dashed var(--line);border-radius:12px;padding:22px;text-align:center;cursor:pointer;margin:10px 0;color:var(--mut)}
+#drop.over{border-color:var(--acc);color:var(--txt)}
+#impStatus{font-size:12px;line-height:1.55;margin:8px 0;white-space:pre-wrap}
+#impStatus .ok{color:var(--ok)} #impStatus .bad{color:var(--bad)}
+.mrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:10px}
+#schedSrc{font-size:11px;color:var(--mut);margin-top:2px}
+.pill{display:inline-block;padding:1px 7px;border-radius:9px;font-size:11px;border:1px solid var(--line)}
+.pill.wip{background:var(--wip);color:#111}.pill.done{background:var(--ok);color:#111}.pill.plan{background:#7c8aa0;color:#111}
+#mobileToggle{display:none}
+@media (max-width:1250px){#brand span{display:none} #topbtns .lbl{display:none}}
+@media (max-width:900px){#top{height:auto;flex-wrap:wrap} #left{width:auto;right:12px;top:auto;bottom:112px;height:45vh;display:none} #left.show{display:flex} #right{display:none} #mobileToggle{display:inline-block} #props{right:12px;left:12px;width:auto}}
+</style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="loading"><div class="sp"></div><div id="loadTxt">4D BIM …</div></div>
+<div id="top" class="glass">
+  <div id="brand"><b id="ttl"></b><span id="sub"></span></div>
+  <div id="topbtns">
+    <button id="mobileToggle" data-i="panels"></button>
+    <div class="seg" id="langSeg" title="ภาษา / Language"><button data-l="th">TH</button><button data-l="en">EN</button></div>
+    <div class="seg" id="themes"><button data-t="day">☀ Day</button><button data-t="sunset">🌇 Sunset</button><button data-t="night">🌙 Night</button><button data-t="bim">▦ BIM 4D</button><button data-t="blue">⌗ Blueprint</button></div>
+    <select id="view"></select>
+    <button id="btnTour" data-i="tour"></button>
+    <button id="btnFly" data-i="fly"></button>
+    <button id="btnSound" data-i="sound"></button>
+    <button id="btnMusic" data-i="music"></button>
+    <button id="btnShot" data-it="shot">📷</button>
+    <button id="btnGlb" data-it="glb">⬇ GLB</button>
+    <button id="btnImport" data-i="import" data-it="importT"></button>
+    <button id="btnLbl" class="on" data-i="labels" data-it="labelsT"></button>
+    <button id="btnL" class="on" data-it="panelL">◧</button>
+    <button id="btnR" class="on" data-it="panelR">◨</button>
+    <button id="btnUI" data-it="hideUI">⤢</button>
+  </div>
+</div>
+<div id="left" class="glass">
+  <button class="pclose" id="closeL">✕</button>
+  <div id="tabs"><button data-tab="gantt" data-i="tabGantt"></button><button data-tab="ms" data-i="tabMS"></button><button data-tab="model" data-i="tabModel"></button><button data-tab="src" data-i="tabSrc"></button></div>
+  <div id="tabbody"></div>
+</div>
+<div id="right" class="glass">
+  <button class="pclose" id="closeR">✕</button>
+  <div class="mut" data-i="simDate"></div>
+  <div id="dateBig">—</div>
+  <div id="stepName" class="acc" style="margin-top:4px;font-weight:600"></div>
+  <div id="schedSrc"></div>
+  <div class="kpis" id="kpis"></div>
+  <h3 data-i="scurve"></h3>
+  <canvas id="scurve" width="276" height="90" style="width:100%;height:90px"></canvas>
+  <h3 data-i="activities"></h3>
+  <ul id="act"></ul>
+</div>
+<div id="props" class="glass"></div>
+<div id="modalBack"></div>
+<div id="modal" class="glass">
+  <div style="display:flex;justify-content:space-between;align-items:center"><b class="acc" style="font-size:15px" data-i="impTitle"></b><button id="mClose">✕</button></div>
+  <div class="mut" style="font-size:12px;margin-top:6px" data-i="impHelp"></div>
+  <div id="drop" data-i="impDrop"></div>
+  <input type="file" id="impFile" accept=".pdf,.xml,.csv,.json,.mpp,.txt" style="display:none">
+  <div id="impStatus"></div>
+  <div class="mrow"><button id="mReset" data-i="impReset"></button><button id="mExport" data-i="impExport"></button><button id="mApply" class="on" disabled data-i="impApply"></button></div>
+</div>
+<div id="bottom" class="glass">
+  <div id="tlrow">
+    <button id="btnPlay"></button>
+    <select id="speed"><option value="2"></option><option value="7" selected></option><option value="15"></option><option value="30"></option></select>
+    <div id="tlwrap"><input type="range" id="slider" min="0" max="1000" value="0"></div>
+    <b id="dateSmall" style="min-width:96px;text-align:right"></b>
+  </div>
+  <div id="ticks"></div>
+</div>
+<div id="hud"><div class="lb" style="top:0"></div><div class="lb" style="bottom:0"></div><div class="tl" id="hudL"></div><div class="tr" id="hudR"></div><div class="bl" id="hudB"></div><div class="cross"></div></div>
+<div id="caption" class="glass"></div>
+<div id="flyhelp" class="glass" data-i="flyHelp"></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { Sky } from 'three/addons/objects/Sky.js';
+import { Water } from 'three/addons/objects/Water.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+
+/* =====================================================================================
+   ENGINE CORE – language, dates, helpers (project-agnostic)
+   ===================================================================================== */
+const QS = new URLSearchParams(location.search);
+let LANG = 'th';
+const DAY = 86400000;
+const D = s => new Date(s + 'T00:00:00').getTime();
+const lerp = (a, b, t) => a + (b - a) * t, clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const fmtISO = t => { const d = new Date(t); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const iso = t => fmtISO(t), addD = (d, n) => iso(D(d) + n * DAY);
+const L2 = (th, en) => LANG === 'en' ? (en ?? th) : th;
+const tx = v => v == null ? '' : typeof v === 'string' ? v : Array.isArray(v) ? L2(v[0], v[1]) : L2(v.th, v.en);   // [th,en] | {th,en} | string
+const fmtDate = t => new Date(t).toLocaleDateString(LANG === 'en' ? 'en-GB' : 'th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+   PROJECT BLOCK – Chalong Rat Expressway Extension (Chatuchot – Lam Luk Ka Rd.)
+   Method Statement: Installation of Precast I-Girder / C-Girder (ITD/RB2/J.2599/QES/MS/S1/01 Rev.2)
+   Coordinates: metres. x = viaduct chainage from the EJ at the existing structure (direction of erection,
+   outbound / away from Bangkok), y = up from road level, z = RIGHT of the axis looking along +x
+   (z > 0 = inbound carriageway side "ขาเข้ากรุงเทพฯ", z < 0 = outbound side "ขาออก").
+   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+const G = { ready: false };                                   // runtime state shared by buildProject / updateProject / KPIs
+const SPANS = [20.046, 20.000, 25, 30, 30, 25, 25, 30, 30, 25, 25, 30, 30, 25, 25, 30, 30, 25];   // S1–S2 from lifting plan, S3–S18 assumed
+const NSP = SPANS.length;
+const PROJECT = {
+  id: 'chatuchot-igirder',
+  title: ['ติดตั้งคาน Precast I-Girder ด้วยเครน 2 คัน · 4D BIM Method Statement', 'Precast I-Girder erection by two-crane tandem lift · 4D BIM Method Statement'],
+  subtitle: ['ทางพิเศษฉลองรัชส่วนต่อขยาย (ช่วงจตุโชติ–ถนนลำลูกกา) · MS ITD/RB2/J.2599/QES/MS/S1/01 Rev.2 · บริเวณด่านฯ จตุโชติ ขาเข้า', 'Chalong Rat Expressway Extension (Chatuchot – Lam Luk Ka Rd.) · MS ITD/RB2/J.2599/QES/MS/S1/01 Rev.2 · Chatuchot toll plaza, inbound'],
+  short: 'I-Girder Erection 4D',
+  T0: '2026-09-20', T1: '2027-03-06', initialDate: '2026-11-13', openDate: '2027-02-26',
+  geo: { lat: 13.8720, lon: 100.6890 },
+  context: {
+    groundY: 0, water: null,
+    city: { count: 240, radius: [120, 950], exclude: [[-520, -78, 1050, 64], [40, 52, 430, 180]] },
+    trees: 320, traffic: { roads: [], count: 0 },
+  },
+  center: [200, 8, 0],
+  floodlights: [[40, 16, 26, 40, 8, 0], [160, 16, -26, 160, 8, 0], [280, 16, 26, 280, 8, 0], [400, 16, -26, 400, 8, 0]],
+  floodIntensity: 260,
+  categories: {
+    pier: { t: ['ตอม่อ + คานหัวเสา Inverted-T (มีอยู่แล้ว)', 'Piers + inverted-T crossbeams (existing)'], grp: 'Substructure', c: '#a5b4c4' },
+    plinth: { t: ['Bearing plinth (ค.ส.ล.)', 'Bearing plinths (RC)'], grp: 'Bearings', c: '#ffc078' },
+    bearing: { t: ['แผ่นยาง Elastomeric bearing', 'Elastomeric bearing pads'], grp: 'Bearings', c: '#495057' },
+    girder: { t: ['คาน Precast I-Girder', 'Precast I-girders'], grp: 'Superstructure', c: '#a5d8ff' },
+    diaph: { t: ['Diaphragm (หล่อในที่)', 'Diaphragms (cast in situ)'], grp: 'Superstructure', c: '#b2f2bb' },
+    brace: { t: ['ค้ำยันชั่วคราว Side / Top bracing', 'Temporary side / top bracing'], grp: 'Temporary Works', c: '#ff922b' },
+    crane: { t: ['Truck crane 110 t (ZTC1100R)', 'Truck cranes 110 t (ZTC1100R)'], grp: 'Temporary Works', c: '#ffd43b' },
+    tm: { t: ['จัดการจราจร (กรวย / ป้าย / รถลูกศร)', 'Traffic management (cones / signs / arrow truck)'], grp: 'Traffic', c: '#f76707' },
+  },
+  schedule: {
+    sourceName: ['MS Rev.2 + หนังสือขอปิดเบี่ยงจราจร (รอบ 6 วัน/Span – สมมติ)', 'MS Rev.2 + traffic-closure approval (6-day span cycle – assumed)'],
+    dateOrder: 'dmy',
+    dates: (() => { const o = { 'TMP': ['2026-10-23', '2026-10-25'], 'TM': ['2026-10-24', '2027-02-25'], 'MOB': ['2026-10-25', '2026-10-25'] };
+      for (let i = 1; i <= NSP; i++) { const d = new Date(Date.UTC(2026, 9, 26 + 6 * (i - 1))).toISOString().slice(0, 10); o['E' + i] = [d, d]; } return o; })(),
+    sections: [],
+    rules: [
+      { re: /(?:Span|ช่วง)\s*(\d+)/i, key: m => (+m[1] >= 1 && +m[1] <= NSP) ? 'E' + (+m[1]) : null },
+      { re: /ปิดเบี่ยง.*เตรียม|Prep.*closure/i, key: () => 'TMP' },
+      { re: /ปิดเบี่ยง|Traffic|Lane closure|Shoulder closure/i, key: () => 'TM' },
+      { re: /Mobili[sz]|เครนเข้า/i, key: () => 'MOB' },
+    ],
+  },
+  views: {
+    overview: { t: ['มุมมอง: ภาพรวม 480 ม.', 'View: overview (480 m)'], pos: [-120, 95, 170], target: [170, 6, 0] },
+    span: { t: ['ช่วงที่กำลังยก (ตามแผงขั้นตอน)', 'Span being erected (follows the lift panel)'], pos: [106, 26, -38], target: [78, 7, 4] },
+    lift: { t: ['ใกล้: การยกแบบ Tandem 2 เครน', 'Close-up: two-crane tandem lift'], pos: [70, 13, 25], target: [80, 9, 2] },
+    section: { t: ['แนวคาน G1–G6 / Bracing', 'Girder lines G1–G6 / bracing'], pos: [55, 13.5, 0.1], target: [75, 8.5, 0] },
+    median: { t: ['ใต้สะพาน (เกาะกลาง)', 'Under the deck (median)'], pos: [40, 2.6, -9], target: [80, 7, 0] },
+    traffic: { t: ['มุมผู้ขับขี่ขาเข้า – ปิดไหล่ทางขวา', 'Inbound driver – right shoulder closed'], pos: [170, 1.6, 17.75], target: [80, 3, 15.5] },
+    top: { t: ['มุมบน (Plan)', 'Top (plan)'], pos: [240, 520, 1], target: [240, 0, 0] },
+  },
+  tour: [
+    { pos: [-230, 75, 150], target: [40, 6, 0], t: ['ทางพิเศษฉลองรัช – ด่านฯ จตุโชติ', 'Chalong Rat Expressway – Chatuchot toll plaza'], s: ['ส่วนต่อขยายช่วงจตุโชติ–ถนนลำลูกกา', 'Extension Chatuchot – Lam Luk Ka Rd.'] },
+    { pos: [-45, 20, 42], target: [10, 8, 4], t: ['จุดเริ่มต้น – EJ ที่โครงสร้างเดิม', 'Start – EJ at the existing structure'], s: ['Span 1 = 20.046 m · คาน 17.93 m · 38 t', 'Span 1 = 20.046 m · girder 17.93 m · 38 t'] },
+    { pos: [45, 16, 36], target: [75, 8, 4], t: ['Truck crane 110 t × 2 คัน', '2 × 110 t truck cranes'], s: ['ZOOMLION ZTC1100R · Boom 21.6 m · R 8–12 m', 'ZOOMLION ZTC1100R · 21.6 m boom · R 8–12 m'] },
+    { pos: [95, 30, 4], target: [140, 8, 0], t: ['คาน I-Girder 6 แนว / Span', '6 I-girder lines per span'], s: ['ยึดด้วย Side + Top bracing ทุกตัวก่อนยกตัวถัดไป', 'Side + top bracing before the next lift'] },
+    { pos: [150, 3.2, -9], target: [195, 7, 0], t: ['ใต้สะพาน – คานหัวเสา Inverted-T', 'Under the deck – inverted-T crossbeams'], s: ['Bearing plinth + แผ่นยาง Elastomeric', 'Bearing plinths + elastomeric pads'] },
+    { pos: [300, 2.2, 21], target: [210, 4, 16], t: ['การจัดการจราจร', 'Traffic management'], s: ['ปิดไหล่ทางขวา 500 ม. · ยังใช้ได้ 3 ช่องทาง', 'Right shoulder closed 500 m · 3 lanes kept open'] },
+    { pos: [360, 55, -80], target: [290, 8, 0], t: ['ภาพรวม 18 Span · 108 คาน', '18 spans · 108 girders'], s: ['รอบงาน 6 วัน / Span', '6-day cycle per span'] },
+    { pos: [560, 32, 45], target: [470, 8, 0], t: ['Span 18 – ปลายช่วงปิดเบี่ยง', 'Span 18 – end of the closure'], s: ['คืนพื้นที่ 25 ก.พ. 2570', 'Shoulder returned 25 Feb 2027'] },
+    { pos: [720, 160, 190], target: [240, 0, 0], t: ['ITD · 4D BIM Method Statement', 'ITD · 4D BIM Method Statement'], s: ['Precast I-Girder Erection by Crane', 'Precast I-Girder Erection by Crane'] },
+  ],
+  steps: [
+    { d: S => addD(S.E1[0], -24), dw: 'MS §6.1', t: ['สำรวจตำแหน่งและระดับ Crossbeam', 'Survey crossbeam position & level'], b: [['ทีมสำรวจตรวจตำแหน่ง / ระดับคานหัวเสาให้ตรงตามแบบก่อสร้าง', 'Survey team checks crossbeam position / level against the drawings'], ['วางแนว Girder line ทั้ง 6 แนว และจุดวางแผ่นยาง', 'Set out the 6 girder lines and bearing positions']] },
+    { d: S => addD(S.E1[0], -20), dw: 'MS §6.1', t: ['ก่อสร้าง Bearing Plinth', 'Construct bearing plinths'], b: [['ต่อเหล็กเสริมกับ Starter bar ที่ฝากไว้ใน Crossbeam', 'Lap rebar onto the starter bars left in the crossbeam'], ['เข้าแบบ เทคอนกรีตตามกำลังอัดที่กำหนด ปรับผิวให้ได้ระนาบ', 'Formwork, concrete to specified strength, level seating surface'], ['ทำล่วงหน้า ≈ 3 สัปดาห์ก่อนยกคานของแต่ละ Span', 'Done ≈ 3 weeks ahead of each span erection']] },
+    { d: S => addD(S.E1[0], -8), dw: 'MS §6.1 · Typical section of bearing pad', t: ['ติดตั้งแผ่นยาง Elastomeric Bearing', 'Install elastomeric bearing pads'], b: [['คานตัวใน: กึ่งกลาง Girder web · คานตัวริม: Offset 5 cm (แนว Transverse)', 'Interior girders: on web centreline · edge girders: 5 cm transverse offset'], ['ใช้ Approved Acrylic Bonding Agent ใต้แผ่นยางกันเลื่อนหลุด', 'Approved acrylic bonding agent under the pad against slipping'], ['แผ่นยาง 0.45×0.35 m (Type 1&2) / 0.45×0.40 m (Type 3) · Steel plate 3 mm', 'Pads 0.45×0.35 m (Type 1&2) / 0.45×0.40 m (Type 3) · 3 mm steel plates']] },
+    { d: S => S.TMP[0], dw: 'หนังสือขอปิดเบี่ยงจราจร (ข้อ 2)', t: ['เตรียมการ – ปิดไหล่ทางซ้ายก่อนด่านฯ 300 ม.', 'Preparation – left shoulder closure before the toll plaza, 300 m'], b: [['23 ต.ค. 69 22:00 – 25 ต.ค. 69 14:00 · ใช้ได้ 2 ช่องทาง', '23 Oct 2026 22:00 – 25 Oct 2026 14:00 · 2 lanes kept'], ['พื้นที่จอดรถขนส่งชิ้นงาน / เตรียมการยก', 'Holding area for girder trailers / lifting preparation']] },
+    { d: S => S.TM[0], dw: 'หนังสือขอปิดเบี่ยงจราจร (ข้อ 1)', t: ['ปิดเบี่ยงจราจรไหล่ทางขวา บริเวณด่านฯ จตุโชติ ขาเข้า 500 ม.', 'Close the inbound right shoulder at Chatuchot toll plaza, 500 m'], b: [['24 ต.ค. 69 – 25 ก.พ. 70 (ชั่วคราว) · ผู้ใช้ทางยังใช้ได้ 3 ช่องทาง', '24 Oct 2026 – 25 Feb 2027 (temporary) · 3 lanes remain open'], ['กรวยยาง ป้ายเตือน รถติดป้ายลูกศร ตามแผนจัดการจราจร', 'Cones, warning signs, arrow-board truck per the TMP'], ['ประชาสัมพันธ์ / แจ้งหน่วยงานล่วงหน้า ≥ 7 วัน', 'Public notice / agencies informed ≥ 7 days ahead']] },
+    { d: S => S.MOB[0], dw: 'PPT slide 3, 29–33, 43–46', t: ['นำ Truck crane 110 t × 2 คัน เข้าพื้นที่', 'Mobilise 2 × 110 t truck cranes'], b: [['ZOOMLION ZTC1100R · ลวดสลิง 1½", 2" · สเก็นโอเมก้า 35 t / 50 t', 'ZOOMLION ZTC1100R · 1½", 2" wire slings · 35 t / 50 t omega shackles'], ['พื้นที่ยืนเครน: บดอัดแน่น ระบายน้ำดี ไม่มีน้ำขัง', 'Crane pads: compacted, well drained, no ponding'], ['คาน 18 m (38 t): 19 t/คัน · R 12 m · Boom 21.6 m · รับได้ 28.5 t → 74.05 %', '18 m girder (38 t): 19 t per crane · R 12 m · 21.6 m boom · 28.5 t → 74.05 %'], ['คาน 20–30 m (≤ 58 t): 29 t/คัน · R 8–9 m · รับได้ 43.5 t → 72.66 %', '20–30 m girder (≤ 58 t): 29 t per crane · R 8–9 m · 43.5 t → 72.66 %']] },
+    { d: S => S.E1[0], dw: 'PPT slide 5–16', t: ['ขนส่งคาน – รถกึ่งพ่วงหางสาลี่ จากโรงหล่อบางปะอิน (44 กม.)', 'Girder delivery – pole trailers from the Bang Pa-In casting yard (44 km)'], b: [['ถนนวงแหวนรอบนอก (9) → ต่างระดับจตุโชติ → ออกคู่ขนานก่อนด่าน → เข้าหน่วยงาน', 'Outer Ring Rd (9) → Chatuchot interchange → frontage road before the toll → site'], ['ตรวจคานตรงตาม Span / Shop drawing · วางทิศคานบนรถให้ตรงกับการติดตั้ง', 'Check girder ID vs span & shop drawing · orientation on the trailer to suit erection'], ['รถนำ + รถปิดขบวน · วิทยุสื่อสาร · Toolbox talk · โฟร์แมนเรียกรถเข้าทีละคัน', 'Lead + tail escort · radios · toolbox talk · foreman calls trailers in one by one']] },
+    { d: S => S.E1[0], dw: 'MS §6.3 STEP 1–6 · PPT slide 34–42', t: ['ยกติดตั้งคาน – Tandem lift 2 เครน (Span 1)', 'Erect girders – two-crane tandem lift (span 1)'], b: [['ตรวจทิศปลายคาน Down Sta. / Up Sta. ห้ามสลับ (Down stand สองด้านไม่เหมือนกัน)', 'Check Down / Up Sta. ends – never swap (different down-stands)'], ['ชุดแรก: คานตัวที่ 1–3 (เครนฝั่งขาเข้า) → ย้ายเครน → ชุดหลัง: คานตัวที่ 4–6', 'First batch girders 1–3 (cranes inbound side) → relocate → girders 4–6'], ['STEP 1 คานริม + Side bracing (Stud bolt M16) · STEP 2–5 Top bracing C100×50×5×7.5 · STEP 6 คานริม + Side bracing', 'STEP 1 edge girder + side bracing (M16 studs) · STEP 2–5 top bracing C100×50×5×7.5 · STEP 6 edge girder + side bracing'], ['ดูรายชั่วโมงได้ที่แผง 🏗 ขั้นตอนการยกคาน', 'See the hour-by-hour 🏗 lifting-sequence panel']] },
+    { d: S => addD(S.E1[0], 1), dw: 'MS §6.3', t: ['ตรวจแผ่นยาง · ผูกเหล็ก/แบบ Diaphragm', 'Check bearings · diaphragm rebar / formwork'], b: [['แผ่นยางต้องแนบสนิทกับ Down stand – มีช่องว่างแก้ด้วย Epoxy resin mortar', 'Pads must seat fully under the down-stand – gaps filled with epoxy resin mortar'], ['เท End diaphragm ทั้ง 2 ด้านก่อน', 'Cast both end diaphragms first']] },
+    { d: S => addD(S.E1[0], 4), dw: 'MS §6.3', t: ['ถอดค้ำยันชั่วคราว · เท Intermediate diaphragm', 'Remove temporary bracing · cast intermediate diaphragm'], b: [['ถอด Side / Top bracing ได้เมื่อ End diaphragm แล้วเสร็จ', 'Side / top bracing removed only after the end diaphragms are cast']] },
+    { d: S => S.E2[0], dw: 'PPT slide 2, 7, 43', t: ['ทำซ้ำ Span 2–18 (รอบ 6 วัน / Span)', 'Repeat spans 2–18 (6-day cycle per span)'], b: [['Span 1–2: 20 m (คาน 17.9 m · 38 t)', 'Spans 1–2: 20 m (girder 17.9 m · 38 t)'], ['Span 3–18: 25 / 30 m (คาน 22.9 / 27.9 m · 48 / 58 t) – สมมติ', 'Spans 3–18: 25 / 30 m (girder 22.9 / 27.9 m · 48 / 58 t) – assumed'], ['รวม 108 คาน ในช่วงปิดเบี่ยง 480 ม.', '108 girders within the 480 m closure']] },
+    { d: S => S.E18[0], dw: '—', t: ['ยกคาน Span 18 · ย้ายเครนออก', 'Erect span 18 · demobilise cranes'], b: [['เครนออกจากพื้นที่หลังยกคานตัวสุดท้าย', 'Cranes leave after the last lift']] },
+    { d: S => S.TM[1], dw: 'หนังสือขอปิดเบี่ยงจราจร', t: ['คืนพื้นที่ไหล่ทาง – เปิดการจราจรปกติ', 'Shoulder returned – normal traffic'], b: [['เก็บกรวย / ป้าย / รถลูกศร · ทำความสะอาดผิวจราจร', 'Remove cones / signs / arrow truck · clean the carriageway']] },
+  ],
+  cycle: { t: ['รอบงาน 1 Span (≈ 6 วัน) – สมมติ', 'One span cycle (≈ 6 days) – assumed'], rows: [['ยกคาน 6 ตัว (2 ตำแหน่งเครน)', 1, 'D0 05:30–16:00'], ['ตรวจแผ่นยาง · ผูกเหล็ก/แบบ Diaphragm', 2, 'D1–D2'], ['เท End diaphragm', 1, 'D3'], ['ถอด Bracing · Intermediate diaphragm', 2, 'D4–D5'], ['Bearing plinth / แผ่นยาง Span ถัดไป', 0, 'ล่วงหน้า D-20…D-6']] },
+  milestones: [[S => S.TM[0], ['ปิดเบี่ยงจราจร', 'Closure starts']], [S => S.E9[0], ['ยกคาน Span 9', 'Span 9 erected']], [S => S.E18[0], ['Span 18', 'Span 18']], [S => S.TM[1], ['คืนพื้นที่', 'Shoulder reopened']]],
+  kpis: [
+    { t: ['คานที่ยกติดตั้งแล้ว', 'Girders erected'], v: t => `${G.girders ? G.girders.filter(g => t >= g.Le).length : 0} / ${NSP * 6}`, bar: t => G.girders ? G.girders.filter(g => t >= g.Le).length / (NSP * 6) : 0 },
+    { t: ['Span ที่ Diaphragm แล้วเสร็จ', 'Spans with diaphragms done'], v: t => `${G.spanDone ? G.spanDone.filter(x => t >= x).length : 0} / ${NSP}` },
+    { t: ['น้ำหนักคานที่ยกสะสม (ตัน)', 'Girder tonnage lifted (t)'], v: t => (G.girders ? G.girders.filter(g => t >= g.Le).reduce((a, g) => a + g.W, 0) : 0).toLocaleString() },
+    { t: ['ปิดเบี่ยงไหล่ทางขวา 500 ม.', 'Right-shoulder closure 500 m'], v: t => { if (!G.tm) return '—'; const [a, b] = G.tm; if (t < a) return L2('ยังไม่เริ่ม', 'not started'); if (t >= b) return L2('คืนพื้นที่แล้ว', 'reopened'); return L2('วันที่ ', 'day ') + (Math.floor((t - a) / DAY) + 1) + ' / ' + Math.round((b - a) / DAY); } },
+  ],
+  hse: ['<h3>ความปลอดภัย / สิ่งแวดล้อม / จราจร (MS §7)</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li>ประชุมชี้แจงขั้นตอน (Toolbox talk) ทุกวัน · ตรวจเครื่องมือ/เครน/สลิงก่อนใช้งาน</li><li>Lifting plan ทุก Span · ห้ามคนอยู่ใต้รัศมีการยก · ผู้ให้สัญญาณเครนที่ผ่านการอบรม</li><li>ทำงานบนที่สูง: Full-body harness + Lifeline บนคาน (PPT slide 65–66)</li><li>PPE ครบ · กั้นพื้นที่ทำงาน · ป้ายเตือน · ไฟส่องสว่างกลางคืน</li><li>ฝุ่น/เสียง: ฉีดน้ำ ทำความสะอาดล้อรถ · ไม่ทิ้งวัสดุลงทางระบายน้ำ</li><li>จราจร: ปฏิบัติตามแผนจัดการจราจรที่ได้รับอนุมัติ · ประชาสัมพันธ์ ≥ 7 วัน</li><li>เอกสารแนบ: ITP · QC checklist · Inspection sheet · JSA</li></ul>', '<h3>Safety / environment / traffic (MS §7)</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li>Daily toolbox talk · inspect tools, cranes and slings before use</li><li>Lifting plan for every span · nobody under the load · certified signaller</li><li>Work at height: full-body harness + lifeline on girders (PPT slides 65–66)</li><li>Full PPE · barricaded work zone · warning signs · night lighting</li><li>Dust / noise: water spraying, wheel washing · nothing into drains</li><li>Traffic: approved TMP · public notice ≥ 7 days</li><li>Attachments: ITP · QC checklist · inspection sheet · JSA</li></ul>'],
+  info: ['<h3>แหล่งข้อมูล</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li><b>MS</b> ITD/RB2/J.2599/QES/MS/S1/01 Rev.2 – วิธีการติดตั้งคานหน้าตัดรูปตัว I และ C (ขั้นตอน §6, STEP 1–6, Front elevation / Side bracing / Detail 1–2)</li><li><b>PPT</b> Method Erection I Girder Rev.140869 – เครน 2 × 100–220 t, ZTC1100R Load chart, Lifting plan 74.05 % / 72.66 %, ลำดับยก 1–8, เส้นทางขนส่ง 44 กม., รถหางสาลี่</li><li><b>PDF</b> ขออนุมัติปิดเบี่ยงจราจร I-girder – ไหล่ทางขวาขาเข้า 500 ม. (24 ต.ค. 69 – 25 ก.พ. 70), ไหล่ทางซ้าย 300 ม. (23–25 ต.ค. 69)</li></ul><h3>ข้อมูลหลักที่ใช้</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li>Span 1 = 20.046 m, Span 2 = 20.000 m (Lifting plan) · คาน P0L 17.93 m · 38 t</li><li>คาน 6 แนว / Span · ยกคานตัวริมก่อน (G1) → G6</li><li>เครน ZTC1100R Main boom 21.6 m · R 8–12 m</li></ul><h3>สมมติฐาน (Assumed)</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li>ไม่มีแบบ General layout / Programme: ความยาว Span 3–18 (25/30 m), ระยะห่างคาน 2.30 m, ความลึกคาน 1.20/1.45/1.65 m, ระดับคานหัวเสา +8.0 m, รูปเสา/คานหัวเสาตาม Front elevation ใน MS</li><li>รอบงาน 6 วัน/Span ภายในช่วงปิดเบี่ยง · เวลาในวันยกตาม PPT ขั้นตอน 1–8</li><li>ตำแหน่งด่านฯ / โครงสร้างเดิม / ถนนคู่ขนาน / บ่อน้ำ เป็นตำแหน่งโดยประมาณ</li><li>แสดงเฉพาะ I-Girder (C-Girder สำหรับ Ramp ใช้ขั้นตอนเดียวกัน)</li></ul><h3>พิกัด</h3><p class="mut" style="font-size:11.5px">x = ระยะตามแนวสะพานจาก EJ (ทิศขาออก), z+ = ด้านขวาเมื่อมองตาม +x = ฝั่งขาเข้ากรุงเทพฯ, y = ความสูงจากผิวจราจร</p>', '<h3>Sources</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li><b>MS</b> ITD/RB2/J.2599/QES/MS/S1/01 Rev.2 – installation of I- and C-girders (§6, STEP 1–6, front elevation / side bracing / details 1–2)</li><li><b>PPT</b> Method Erection I Girder Rev.140869 – 2 × 100–220 t cranes, ZTC1100R load chart, lifting plan 74.05 % / 72.66 %, lift sequence 1–8, 44 km delivery route, pole trailers</li><li><b>PDF</b> traffic-closure approval – inbound right shoulder 500 m (24 Oct 2026 – 25 Feb 2027), left shoulder 300 m (23–25 Oct 2026)</li></ul><h3>Key data</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li>Span 1 = 20.046 m, span 2 = 20.000 m (lifting plan) · girder P0L 17.93 m · 38 t</li><li>6 girder lines per span · edge girder G1 first → G6</li><li>ZTC1100R main boom 21.6 m · R 8–12 m</li></ul><h3>Assumptions</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li>No general layout / programme supplied: spans 3–18 (25/30 m), girder spacing 2.30 m, girder depth 1.20/1.45/1.65 m, crossbeam ledge +8.0 m, pier shape from the MS front elevation</li><li>6-day span cycle inside the closure · hours of the erection day from PPT steps 1–8</li><li>Toll plaza / existing structure / frontage roads / pond positions are approximate</li><li>Only I-girders shown (C-girders for ramps follow the same method)</li></ul><h3>Coordinates</h3><p class="mut" style="font-size:11.5px">x = chainage along the viaduct from the EJ (outbound), z+ = right looking along +x = inbound side, y = height above the carriageway</p>'],
+  labelGroups: [['pier', ['ตอม่อ', 'Piers']], ['span', ['ช่วงสะพาน', 'Spans']], ['equip', ['เครื่องจักร', 'Plant']], ['road', ['ถนน / จราจร', 'Roads / traffic']], ['land', ['สถานที่', 'Landmarks']]],
+  structuralCats: ['girder', 'diaph', 'plinth'],
+  archAfterStructure: false,
+};
+
+function buildProject(api) {
+  const { THREE, M, mesh, member, addEl, date, label, D, DAY, addD, L2, lerp, clamp, R } = api;
+  const HR = 3600000; G.HR = HR; G.api = api;
+  cars.count = 0;                                                   // engine traffic not used – own one-way carriageways below
+  const pad2 = n => String(n).padStart(2, '0');
+  const ss = u => u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u); G.ss = ss;
+  // ---------------- geometry constants ----------------
+  const XS = [0]; SPANS.forEach(s => XS.push(XS.at(-1) + s)); G.XS = XS;
+  const LEDGE = 8.0, PL = 0.2, PAD = 0.06, SOF = LEDGE + PL + PAD; G.SOF = SOF;   // ledge top / plinth / pad → girder soffit
+  const GZ = [5.75, 3.45, 1.15, -1.15, -3.45, -5.75];               // girder lines G1..G6 (G1 = inbound-side edge girder)
+  const CB = 6.9;                                                   // crossbeam half length
+  const gL = s => s - 2.1, gH = L => L < 20 ? 1.2 : L < 25 ? 1.45 : 1.65, gW = L => Math.round(L < 18.5 ? 38 : 38 + (L - 17.95) * 20 / (27.9 - 17.95));
+  const SH = SPANS.map(s => gH(gL(s)));                             // girder depth per span
+  const stemTop = j => SOF + Math.max(SH[j - 1] || 0, SH[j] || 0);  // stem top at support j = top of the deeper adjoining girder
+  const LH = [7.0, 8.25, 9.5, 12.0, 13.25, 14.5]; G.LH = LH;        // lift start hour of girders G1..G6 on the erection day
+  const LIFT = .75 * HR;
+  const Ed = i => D(date('E' + i)[0]); G.Ed = Ed;
+  // ---------------- materials ----------------
+  const pc = new THREE.MeshStandardMaterial({ color: 0xe9e5dd, map: api.texConcrete('#d6d2ca'), roughness: .8 });
+  const exist = new THREE.MeshStandardMaterial({ color: 0xc9c5bd, map: api.texConcrete('#bdb9b1'), roughness: .9 });
+  const rubber = new THREE.MeshStandardMaterial({ color: 0x1d1f22, roughness: .9 });
+  const yel = new THREE.MeshStandardMaterial({ color: 0xf2b705, metalness: .25, roughness: .5 });
+  const tyre = new THREE.MeshStandardMaterial({ color: 0x141414, roughness: .95 });
+  const glassM = new THREE.MeshStandardMaterial({ color: 0x24384c, metalness: .7, roughness: .15 });
+  const coneM = new THREE.MeshStandardMaterial({ color: 0xff5a00, roughness: .55, emissive: 0x2a0a00 });
+  const truckW = new THREE.MeshStandardMaterial({ color: 0xf1f3f5, roughness: .6 });
+  const blueT = new THREE.MeshStandardMaterial({ color: 0x1c4f8f, roughness: .5, metalness: .3 });
+  const box = (w, h, d, mat, x, y, z, par) => { const m = mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, z); if (par) par.add(m); return m; };
+  // 2-D section (u = z, v = y) extruded along x, centred on x = 0
+  function prismX(pts, len) { const sh = new THREE.Shape(pts.map(([a, b]) => new THREE.Vector2(a, b))); const g = new THREE.ExtrudeGeometry(sh, { depth: len, bevelEnabled: false, curveSegments: 6 }); g.translate(0, 0, -len / 2); g.rotateY(Math.PI / 2); return g; }
+  const ctxAdd = o => { o.userData.ctx = true; o.traverse(m => { if (m.isMesh) m.receiveShadow = true; }); api.gCtx.add(o); return o; };
+
+  /* ================= CONTEXT: Chalong Rat carriageways, median work zone, frontage roads, pond, toll plaza, existing structure ================= */
+  const X0 = -460, X1 = 980, LEN = X1 - X0, XC = (X0 + X1) / 2;
+  function markTex(lines) { return api.ctex(api.cnv(128, 256, (g, w, h) => { g.fillStyle = '#45484d'; g.fillRect(0, 0, w, h); for (let i = 0; i < 2600; i++) { const v = R() < .5 ? 30 : 110; g.fillStyle = `rgba(${v},${v},${v},.16)`; g.fillRect(R() * w, R() * h, 2, 2); }
+    lines.forEach(([f, dash, c]) => { g.fillStyle = c; const y = f * h; g.fillRect(0, y - 1.6, dash ? w * .4 : w, 3.2); }); })); }
+  function road(zc, W, lines, rep = 12) { const t = markTex(lines); t.repeat.set(LEN / rep, 1); const m = mesh(new THREE.PlaneGeometry(LEN, W), new THREE.MeshStandardMaterial({ map: t, roughness: .92 })); m.rotation.x = -Math.PI / 2; m.position.set(XC, .03, zc); ctxAdd(m); return m; }
+  // carriageway width 16.5 m: inner shoulder, 3 × 3.5 m lanes, outer shoulder (line fractions measured from the -z edge)
+  road(20.75, 16.5, [[.212, 0, '#f2c200'], [.424, 1, '#f1f1f1'], [.636, 1, '#f1f1f1'], [.848, 0, '#f1f1f1']]);       // inbound  z 12.5 … 29.0
+  road(-25.75, 16.5, [[.212, 0, '#f1f1f1'], [.424, 1, '#f1f1f1'], [.636, 1, '#f1f1f1'], [.848, 0, '#f2c200']]);      // outbound z -34 … -17.5
+  road(46, 14, [[.5, 1, '#f2c200']]); road(-52, 14, [[.5, 1, '#f2c200']]);                                         // ถนนจตุโชติ / frontage roads
+  { // median work zone (compacted soil + crane pads), green verges
+    const soil = api.ctex(api.cnv(256, 256, (g, w, h) => { g.fillStyle = '#9a8a6c'; g.fillRect(0, 0, w, h); for (let i = 0; i < 9000; i++) { g.fillStyle = R() < .5 ? 'rgba(80,66,46,.35)' : 'rgba(200,190,160,.25)'; g.fillRect(R() * w, R() * h, 2, 2); } }));
+    soil.repeat.set(60, 4); const m = mesh(new THREE.PlaneGeometry(600, 30), new THREE.MeshStandardMaterial({ map: soil, roughness: 1 })); m.rotation.x = -Math.PI / 2; m.position.set(245, .045, -2.5); ctxAdd(m);
+    const canal = mesh(new THREE.PlaneGeometry(LEN, 7), new THREE.MeshStandardMaterial({ color: 0x5f7d62, roughness: .3, metalness: .2 })); canal.rotation.x = -Math.PI / 2; canal.position.set(XC, .025, -40); ctxAdd(canal);
+    const pond = mesh(new THREE.CircleGeometry(1, 48), new THREE.MeshStandardMaterial({ color: 0x4f7f8c, roughness: .15, metalness: .3 })); pond.rotation.x = -Math.PI / 2; pond.scale.set(170, 62, 1); pond.position.set(235, .025, 116); ctxAdd(pond);
+  }
+  { // barriers (outbound inner edge full length; inbound inner edge only outside the work zone), lamp posts on outer edges
+    const bar = [], pole = [], head = [];
+    const bg = (x0, x1, z) => { const g = new THREE.BoxGeometry(x1 - x0, .9, .55); g.translate((x0 + x1) / 2, .45, z); bar.push(g); };
+    bg(X0, X1, -17.3); bg(X0, -40, 12.3); bg(520, X1, 12.3); bg(X0, X1, 29.3); bg(X0, X1, -34.3);
+    for (let x = X0 + 20; x < X1; x += 42) [[30.2, -1], [-35.2, 1]].forEach(([z, s]) => { const p = new THREE.CylinderGeometry(.12, .16, 11, 6); p.translate(x, 5.5, z); pole.push(p); const a = new THREE.BoxGeometry(.15, .15, 2.4); a.translate(x, 10.9, z + s * 1.2); pole.push(a); const hd = new THREE.BoxGeometry(.7, .18, .35); hd.translate(x, 10.8, z + s * 2.3); head.push(hd); });
+    ctxAdd(mesh(api.mergeGeometries(bar), M.barrier)); ctxAdd(mesh(api.mergeGeometries(pole), M.lamp)); ctxAdd(mesh(api.mergeGeometries(head), M.lampHead));
+  }
+  { // Chatuchot toll plaza (inbound) – indicative position
+    const g = new THREE.Group(); box(14, 1.1, 22, M.white, 0, 7.6, 20.75, g); box(14.4, .25, 22.4, new THREE.MeshStandardMaterial({ color: 0x1971c2 }), 0, 7.0, 20.75, g);
+    [13.5, 17.25, 21, 24.75, 28].forEach(z => { box(3.2, 2.6, 1.6, M.white, 0, 1.3, z, g); box(.6, 7, .6, M.lamp, -5, 3.5, z, g); box(.6, 7, .6, M.lamp, 5, 3.5, z, g); });
+    g.position.x = -150; ctxAdd(g);
+    label(L2('ด่านฯ จตุโชติ (ขาเข้า) – โดยประมาณ', 'Chatuchot toll plaza (inbound) – approx.'), new THREE.Vector3(-150, 12, 21), '#74c0fc', 'toll', 'land', .55);
+  }
+  // pier: flared column + inverted-T crossbeam (ledge + stem + seismic buffers), from the MS front elevation
+  const colG = (() => { const pts = []; for (let i = 0; i <= 12; i++) { const t = i / 12; pts.push([1.0 + 1.7 * Math.pow(t, 2.2), 6.5 * t]); } return prismX([...pts, ...pts.slice().reverse().map(([a, b]) => [-a, b])], 1.8); })();
+  const ledgeG = prismX([[-CB, LEDGE], [CB, LEDGE], [CB, 7.35], [4.8, 6.5], [-4.8, 6.5], [-CB, 7.35]].reverse(), 4.0);
+  function makePier(x, top, mat, sides) {
+    const g = new THREE.Group(); g.add(mesh(colG, mat)); g.add(mesh(ledgeG, mat)); box(1.9, top - LEDGE, 2 * CB, mat, 0, (top + LEDGE) / 2, 0, g);
+    sides.forEach(s => GZ.slice(0, 5).forEach((z, k) => box(.45, .5, .6, mat, s * 1.6, LEDGE + .25, (z + GZ[k + 1]) / 2, g)));
+    g.position.x = x; return g;
+  }
+  { // existing structure (west of the EJ) – indicative
+    const g = new THREE.Group(), top = SOF + SH[0] + .2, bot = LEDGE + .05;
+    box(92, top - bot, 13.2, exist, -47.5, (top + bot) / 2, 0, g); box(92, 1.1, .4, exist, -47.5, top + .55, 6.4, g); box(92, 1.1, .4, exist, -47.5, top + .55, -6.4, g);
+    [-31, -62, -93].forEach(x => g.add(makePier(x, LEDGE + .02, exist, [])));
+    ctxAdd(g);
+    label(L2('โครงสร้างเดิม (Existing) · EJ Type 2', 'Existing structure · EJ Type 2'), new THREE.Vector3(-30, 16, 0), '#adb5bd', 'exist', 'land', .55);
+  }
+  for (let j = 0; j <= NSP; j++) {
+    const o = makePier(XS[j], stemTop(j), M.conc, j === 0 ? [1] : j === NSP ? [-1] : [-1, 1]);
+    addEl({ id: j ? `MLP1-${pad2(j)}` : 'EJ-0', name: j ? `Pier MLP1-${pad2(j)} + inverted-T crossbeam` : 'EJ support at the existing structure', cat: 'pier', grp: L2('ตอม่อ + คานหัวเสา (มีอยู่แล้ว)', 'Piers + crossbeams (existing)'), obj: o, start: '2026-09-20', finish: '2026-09-21', dwg: 'MS §6.3 Front elevation', src: L2('ก่อสร้างแล้วเสร็จก่อน MS นี้ (สมมติ)', 'Completed before this MS (Assumed)'), loc: `x = ${XS[j].toFixed(3)} m` });
+    label(j ? `MLP1-${pad2(j)}` : 'EJ', new THREE.Vector3(XS[j], 2.2, -4.2), '#22b8cf', 'p' + j, 'pier', .3);
+  }
+  label(L2('ทางพิเศษฉลองรัช ขาเข้ากรุงเทพฯ ←', '← Chalong Rat Expwy · inbound (to Bangkok)'), new THREE.Vector3(620, 3, 21), '#74c0fc', 'rdIn', 'road', .7);
+  label(L2('ขาออก (ไปลำลูกกา / บางปะอิน) →', 'Outbound (to Lam Luk Ka) →'), new THREE.Vector3(620, 3, -26), '#74c0fc', 'rdOut', 'road', .7);
+  label(L2('ถนนจตุโชติ', 'Chatuchot Rd.'), new THREE.Vector3(600, 3, 46), '#adb5bd', 'rdF', 'road', .55);
+
+  /* ================= GIRDERS, BEARINGS, BRACING, DIAPHRAGMS per span ================= */
+  const gCache = {};
+  function girderGeo(L, H) { const k = L.toFixed(2) + '_' + H; if (gCache[k]) return gCache[k];
+    const bf = .65, tb = .2, tw = .18, tf = .85, tt = .12;
+    const P = [[-bf / 2, 0], [bf / 2, 0], [bf / 2, tb], [tw / 2, tb + .15], [tw / 2, H - tt - .1], [tf / 2, H - tt], [tf / 2, H], [-tf / 2, H], [-tf / 2, H - tt], [-tw / 2, H - tt - .1], [-tw / 2, tb + .15], [-bf / 2, tb]];
+    const parts = [prismX(P.reverse(), L)]; [-1, 1].forEach(s => { const b = new THREE.BoxGeometry(.7, H - .02, .64); b.translate(s * (L / 2 - .35), H / 2, 0); parts.push(b.toNonIndexed()); });
+    parts[0] = parts[0].index ? parts[0].toNonIndexed() : parts[0];
+    return gCache[k] = api.mergeGeometries(parts); }
+  const steelC = M.steel;
+  function sideFrame(grp, xe, s, zf, top) {   // side bracing frame 810 × 850 (MS "SIDE BRACING") on the outer face of an edge girder; s = direction into the span
+    const P = (dx, y) => new THREE.Vector3(xe + s * dx, y, zf), y0 = top - .85;
+    [[P(.05, y0), P(.05, top)], [P(.76, y0), P(.76, top)], [P(.05, top), P(.76, top)], [P(.05, y0), P(.76, y0)], [P(.405, y0), P(.05, top)], [P(.405, y0), P(.76, top)], [P(.05, top + .05), P(-.25, top + .05)]].forEach(([a, b]) => grp.add(member(a, b, .09, steelC)));
+  }
+  G.girders = []; G.spanDone = []; G.spans = [];
+  const SP = i => L2(`Span ${i}`, `Span ${i}`);
+  for (let i = 1; i <= NSP; i++) {
+    const xa = XS[i - 1], xb = XS[i], xm = (xa + xb) / 2, L = gL(SPANS[i - 1]), H = SH[i - 1], W = gW(L), E = Ed(i);
+    const gx0 = xa + 1.05, gx1 = xb - 1.05, top = SOF + H, grp = L2(`ช่วง ${i} (Span ${i}) · ${SPANS[i - 1].toFixed(SPANS[i - 1] % 1 ? 3 : 0)} m`, `Span ${i} · ${SPANS[i - 1].toFixed(SPANS[i - 1] % 1 ? 3 : 0)} m`);
+    const srcA = L2('MS Rev.2 · วันที่ตามรอบ 6 วัน/Span (สมมติ)', 'MS Rev.2 · dates from a 6-day span cycle (Assumed)');
+    G.spans.push({ i, xa, xb, xm, L, H, W, E });
+    // bearing plinths
+    { const o = new THREE.Group(); [gx0 + .35, gx1 - .35].forEach(x => GZ.forEach(z => box(.7, PL, .9, M.conc, x, LEDGE + PL / 2, z, o)));
+      addEl({ id: `BP-${i}`, name: `${SP(i)} · Bearing plinths (12 nos.)`, cat: 'plinth', grp, obj: o, kind: 'cast', start: E - 20 * DAY, cast: E - 15 * DAY, finish: E - 13 * DAY, dwg: 'MS §6.1', src: srcA, qty: { vol: 12 * .7 * .9 * PL }, loc: `x ${xa.toFixed(1)} / ${xb.toFixed(1)} m` }); }
+    { const o = new THREE.Group(); [gx0 + .35, gx1 - .35].forEach(x => GZ.forEach((z, k) => box(.35, PAD, .45, rubber, x, LEDGE + PL + PAD / 2, z + (k === 0 ? -.05 : k === 5 ? .05 : 0), o)));
+      addEl({ id: `EB-${i}`, name: `${SP(i)} · Elastomeric bearing pads 0.45×0.35 m (12 nos.)`, cat: 'bearing', grp, obj: o, start: E - 8 * DAY, finish: E - 7 * DAY, dwg: 'MS §6.1 · Typical section of bearing pad', src: srcA }); }
+    // girders G1..G6
+    for (let k = 0; k < 6; k++) {
+      const o = new THREE.Group(), m = mesh(girderGeo(L, H), pc); o.add(m); o.position.set(xm, SOF, GZ[k]);
+      const Ls = E + LH[k] * HR, Le = Ls + LIFT, sig = k < 3 ? 1 : -1;
+      const e = addEl({ id: `G${i}-${k + 1}`, name: `${SP(i)} · Girder G${k + 1} (L = ${L.toFixed(2)} m, ≈ ${W} t)`, cat: 'girder', grp, obj: o, start: Ls, finish: Le, dwg: `MS §6.3 STEP ${k + 1} · PPT ${L < 19 ? 'slide 34–42' : 'slide 47–58'}`, src: srcA, qty: { L, H, vol: W / 2.5 }, loc: `x ${gx0.toFixed(2)} – ${gx1.toFixed(2)} m · line G${k + 1} (z ${GZ[k] > 0 ? '+' : ''}${GZ[k]} m)` });
+      G.girders.push({ e, i, k, xm, z: GZ[k], L, H, W, Ls, Le, sig, zt: sig * 7.6, yHigh: Math.max(stemTop(i - 1), stemTop(i)) + .45 });
+    }
+    // temporary bracing (installed after each lift, removed after the end diaphragms)
+    const rmS = E + 4 * DAY + 8 * HR, rmE = E + 4 * DAY + 12 * HR;
+    const braceEl = (id, name, k, build) => { const o = new THREE.Group(); build(o); const s = E + (LH[k] + .75) * HR;
+      addEl({ id, name, cat: 'brace', grp, obj: o, temp: true, start: s, finish: s + .5 * HR, rmS, rmE, dwg: 'MS §6.3 Side bracing / Detail 1–2', src: srcA, noShadow: true }); };
+    braceEl(`SB-${i}-1`, `${SP(i)} · Side bracing G1 (STEP 1)`, 0, o => [[gx0, 1], [gx1, -1]].forEach(([x, s]) => sideFrame(o, x, s, GZ[0] + .38, top)));
+    for (let j = 1; j < 6; j++) braceEl(`TB-${i}-${j}`, `${SP(i)} · Top bracing G${j}–G${j + 1} C100×50×5×7.5 (STEP ${j + 1})`, j, o => [gx0 + .4, gx1 - .4].forEach(x => o.add(member(new THREE.Vector3(x, top + .06, GZ[j - 1] + .3), new THREE.Vector3(x, top + .06, GZ[j] - .3), .1, steelC))));
+    braceEl(`SB-${i}-6`, `${SP(i)} · Side bracing G6 (STEP 6)`, 5, o => [[gx0, 1], [gx1, -1]].forEach(([x, s]) => sideFrame(o, x, s, GZ[5] - .38, top)));
+    // diaphragms
+    { const o = new THREE.Group(); [gx0 + .3, gx1 - .3].forEach(x => box(.6, H - .27, 12.2, M.conc, x, SOF + .15 + (H - .27) / 2, 0, o));
+      addEl({ id: `ED-${i}`, name: `${SP(i)} · End diaphragms (both ends)`, cat: 'diaph', grp, obj: o, kind: 'cast', start: E + DAY, cast: E + 3 * DAY + 10 * HR, finish: E + 4 * DAY, dwg: 'MS §6.3', src: srcA, qty: { vol: 2 * .6 * (H - .27) * 10.2 } }); }
+    { const o = new THREE.Group(); box(.25, H * .65, 11.4, M.conc, xm, SOF + H - .12 - H * .325, 0, o);
+      addEl({ id: `ID-${i}`, name: `${SP(i)} · Intermediate diaphragm`, cat: 'diaph', grp, obj: o, kind: 'cast', start: E + 3 * DAY, cast: E + 5 * DAY + 10 * HR, finish: E + 6 * DAY, dwg: 'MS §6.3', src: srcA, qty: { vol: .25 * H * .65 * 9.4 } }); }
+    G.spanDone.push(E + 6 * DAY);
+    label(`S${i}`, new THREE.Vector3(xm, 2.2, -11), '#f0b429', 's' + i, 'span', .3);
+  }
+
+  /* ================= TRAFFIC MANAGEMENT: right-shoulder closure 500 m (inbound) ================= */
+  G.tm = date('TM').map(D); G.tm[1] += 14 * HR;
+  {
+    const o = new THREE.Group(), pts = [];
+    for (let x = 560; x > 505; x -= 5) pts.push([x, lerp(12.8, 16.05, (560 - x) / 55)]);
+    for (let x = 505; x >= -20; x -= 8) pts.push([x, 16.05]);
+    for (let x = -24; x >= -48; x -= 6) pts.push([x, lerp(16.05, 12.8, (-24 - x) / 24)]);
+    const cg = new THREE.ConeGeometry(.2, .75, 10); cg.translate(0, .375, 0); const cones = new THREE.InstancedMesh(cg, coneM, pts.length), mt = new THREE.Matrix4();
+    pts.forEach(([x, z], n) => { mt.makeTranslation(x, 0, z); cones.setMatrixAt(n, mt); }); o.add(cones);
+    // arrow-board truck at the start of the taper (facing oncoming inbound traffic from +x)
+    const tk = new THREE.Group(); box(6.5, 1.2, 2.3, truckW, 0, 1.3, 0, tk); box(1.9, 1.7, 2.3, truckW, -3.4, 1.6, 0, tk); [-2.6, 2.2].forEach(x => [-1, 1].forEach(s => { const w = mesh(new THREE.CylinderGeometry(.48, .48, .35, 12), tyre); w.rotation.x = Math.PI / 2; w.position.set(x, .48, s * 1.05); tk.add(w); }));
+    const arrow = api.ctex(api.cnv(256, 128, (g, w, h) => { g.fillStyle = '#111'; g.fillRect(0, 0, w, h); g.fillStyle = '#ffb300'; for (let r = 0; r < 6; r++) for (let c = 0; c < 14; c++) { const x = 20 + c * 16, y = 20 + r * 16; const inArrow = (y > 44 && y < 84 && x > 70) || (Math.abs(y - 64) < (x - 18) * 0.95 && x < 82); if (inArrow) { g.beginPath(); g.arc(x, y, 5, 0, 7); g.fill(); } } }), false);
+    const bd = mesh(new THREE.PlaneGeometry(2.6, 1.4), new THREE.MeshStandardMaterial({ map: arrow, emissive: 0xffffff, emissiveMap: arrow, emissiveIntensity: .6 })); bd.rotation.y = Math.PI / 2; bd.position.set(3.3, 3.4, 0); tk.add(bd);
+    box(.15, 1.2, .15, M.dark, 3.2, 2.4, 0, tk); tk.position.set(572, 0, 14.3); o.add(tk);
+    // warning signs on the outer verge
+    const sign = api.ctex(api.cnv(256, 160, (g, w, h) => { g.fillStyle = '#ffd400'; g.fillRect(0, 0, w, h); g.strokeStyle = '#111'; g.lineWidth = 8; g.strokeRect(6, 6, w - 12, h - 12); g.fillStyle = '#111'; g.font = 'bold 30px IBM Plex Sans Thai, sans-serif'; g.textAlign = 'center'; g.fillText('งานก่อสร้าง', w / 2, 52); g.fillText('ปิดไหล่ทางขวา', w / 2, 92); g.fillText('500 ม.', w / 2, 132); }), false);
+    [650, 760, 880].forEach(x => { const s = mesh(new THREE.PlaneGeometry(2.6, 1.6), new THREE.MeshStandardMaterial({ map: sign, side: THREE.DoubleSide })); s.rotation.y = Math.PI / 2; s.position.set(x, 2.6, 30.4); o.add(s); box(.1, 1.8, .1, M.lamp, x, .9, 30.4, o); });
+    addEl({ id: 'TM-1', name: L2('ปิดเบี่ยงจราจรไหล่ทางขวา ขาเข้า 500 ม. (ยังใช้ได้ 3 ช่องทาง)', 'Inbound right-shoulder closure 500 m (3 lanes open)'), cat: 'tm', grp: L2('จัดการจราจร', 'Traffic management'), obj: o, temp: true, start: G.tm[0] + 20 * HR, finish: G.tm[0] + 22 * HR, rmS: G.tm[1], rmE: G.tm[1] + 3 * HR, dwg: L2('หนังสือขออนุมัติปิดเบี่ยงจราจร I-girder', 'Traffic-closure approval I-girder'), src: L2('อนุมัติ: 24 ต.ค. 69 – 25 ก.พ. 70', 'Approved: 24 Oct 2026 – 25 Feb 2027'), noShadow: true });
+    label(L2('ปิดไหล่ทางขวา 500 ม. · 24 ต.ค. 69 – 25 ก.พ. 70', 'Right shoulder closed 500 m · 24 Oct 26 – 25 Feb 27'), new THREE.Vector3(300, 4.5, 16), '#ff922b', 'tmL', 'road', .6).el = api.elById['TM-1'];
+  }
+
+  /* ================= TRUCK CRANES (ZOOMLION ZTC1100R, 110 t) ================= */
+  const BL = 21.6;   // main boom per lifting plan
+  const segGeo = new THREE.CylinderGeometry(1, 1, 1, 8); segGeo.rotateX(Math.PI / 2);
+  const fx = new THREE.Group(); api.scene.add(fx); G.fx = fx;
+  const seg = (r, mat) => { const m = mesh(segGeo, mat); m.userData.r = r; fx.add(m); return m; };
+  function makeTruckCrane() {
+    const g = new THREE.Group();
+    box(13.4, .9, 2.75, yel, 0, 1.55, 0, g); box(13.6, .45, 2.3, M.dark, 0, .95, 0, g);
+    const wg = new THREE.CylinderGeometry(.62, .62, .55, 16); wg.rotateX(Math.PI / 2);
+    [-5.3, -3.9, -2.5, 3.0, 4.4].forEach(x => [-1.1, 1.1].forEach(z => { const w = mesh(wg, tyre); w.position.set(x, .62, z); g.add(w); }));
+    box(1.9, 1.75, 1.2, yel, 5.85, 2.55, .75, g); box(.06, .9, 1.0, glassM, 6.82, 2.8, .75, g);
+    const outs = []; [4.0, -6.0].forEach(x => [-1, 1].forEach(s => { const o = new THREE.Group(); o.position.set(x, 1.25, 0); const beam = box(.42, .38, 1, yel, 0, 0, 0, o), jack = box(.3, .9, .3, M.dark, 0, -.45, 0, o), pd = box(.95, .1, .95, M.timber, 0, -1.2, 0, o); o.userData = { s, beam, jack, pd }; g.add(o); outs.push(o); }));
+    const tur = new THREE.Group(); tur.position.set(-2.5, 2.0, 0); g.add(tur);
+    box(5.0, .9, 2.6, yel, -.8, .45, 0, tur); box(1.5, 1.5, 2.6, M.dark, -3.0, 1.0, 0, tur); box(1.7, 1.55, .95, yel, 1.1, 1.2, 1.05, tur); box(.06, .8, .8, glassM, 1.97, 1.35, 1.05, tur);
+    const piv = new THREE.Group(); piv.position.set(-1.4, 1.5, 0); tur.add(piv);
+    const bm = (x0, x1, s) => box(x1 - x0, s, s * .95, yel, (x0 + x1) / 2, 0, 0, piv); bm(-.6, 10.8, .95); bm(9.3, 16.6, .78); bm(15.4, BL, .62); box(.9, .8, .7, M.dark, BL, -.1, 0, piv);
+    const tip = new THREE.Object3D(); tip.position.set(BL + .2, -.45, 0); piv.add(tip);
+    return { obj: g, tur, piv, tip, outs };
+  }
+  const work = (i, set, c) => { const z = (set === 1 ? 1 : -1) * 12.8; return c === 0 ? { x: XS[i - 1] - .5, z, hd: Math.PI } : { x: XS[i] + .5, z, hd: 0 }; };
+  const mid = i => i < 1 ? -15 : i > NSP ? XS[NSP] + 14 : (XS[i - 1] + XS[i]) / 2;
+  const MOB = D(date('MOB')[0]);
+  G.cr = [0, 1].map(c => {
+    const C = makeTruckCrane(), moves = [];
+    moves.push({ t0: MOB + (8.4 - c * .4) * HR, t1: MOB + (10.4 - c * .4) * HR, from: { x: -300, z: 14.2, hd: 0 }, to: work(1, 1, c), xm: 0, cold: true });
+    for (let i = 1; i <= NSP; i++) {
+      if (i > 1) moves.push({ t0: Ed(i) + 5.9 * HR, t1: Ed(i) + 6.6 * HR, from: work(i - 1, 2, c), to: work(i, 1, c), xm: c === 0 ? mid(i - 1) : mid(i) });
+      moves.push({ t0: Ed(i) + 10.85 * HR, t1: Ed(i) + 11.85 * HR, from: work(i, 1, c), to: work(i, 2, c), xm: c === 0 ? mid(i - 1) : mid(i + 1) });
+    }
+    const dm = Ed(NSP) + (16.2 + c * .3) * HR; moves.push({ t0: dm, t1: dm + 2 * HR, from: work(NSP, 2, c), to: { x: 820 + c * 25, z: -12.8, hd: 0 }, xm: 0, coldEnd: true });
+    const e = addEl({ id: `CR-${c + 1}`, name: `Truck crane #${c + 1} – ZOOMLION ZTC1100R 110 t (${c ? L2('ปลาย Up Sta.', 'Up-Sta. end') : L2('ปลาย Down Sta.', 'Down-Sta. end')})`, cat: 'crane', grp: L2('Truck crane 110 t × 2', 'Truck cranes 110 t × 2'), obj: C.obj, temp: true, start: moves[0].t0, finish: moves[0].t1, rmS: dm, rmE: dm + 2 * HR, dwg: 'PPT slide 3, 31–33, 44–46', src: L2('PPT Lifting plan', 'PPT lifting plan'), noShadow: false });
+    const rope = seg(.035, M.dark), luff = seg(.2, M.lamp), rod = seg(.12, M.rail), s1 = seg(.03, M.yellow), s2 = seg(.03, M.yellow);
+    const hook = box(.55, .8, .45, M.steel, 0, 0, 0, fx);
+    const lb = label(`Crane #${c + 1} · 110 t`, new THREE.Vector3(), '#ffd43b', 'cr' + c, 'equip', .34); lb.el = e;
+    return { ...C, moves, e, rope, luff, rod, s1, s2, hook, lb, c };
+  });
+
+  /* ================= POLE TRAILERS (หางสาลี่) – 2 rotating units ================= */
+  G.tr = [0, 1].map(n => {
+    const root = new THREE.Group(), tractor = new THREE.Group(), dolly = new THREE.Group();
+    box(7.2, .55, 2.45, M.dark, 1.5, 1.05, 0, tractor); box(2.2, 2.4, 2.45, n ? blueT : truckW, 4.3, 2.3, 0, tractor); box(.06, 1.0, 2.1, glassM, 5.42, 2.9, 0, tractor); box(1.4, .35, 1.6, M.dark, 0, 1.42, 0, tractor);
+    const wg = new THREE.CylinderGeometry(.52, .52, .5, 14); wg.rotateX(Math.PI / 2);
+    [4.6, .6, -.8].forEach(x => [-1, 1].forEach(s => { const w = mesh(wg, tyre); w.position.set(x, .52, s * 1.0); tractor.add(w); }));
+    box(4.2, .45, 2.45, M.dark, 0, 1.0, 0, dolly); box(1.4, .35, 1.6, M.dark, 0, 1.42, 0, dolly);
+    [-1.4, 0, 1.4].forEach(x => [-1, 1].forEach(s => { const w = mesh(wg, tyre); w.position.set(x, .52, s * 1.0); dolly.add(w); }));
+    const pole = mesh(segGeo, M.dark); pole.userData.r = .12; root.add(tractor, dolly, pole); ctxAdd(root); root.visible = false;
+    const lb = label(L2('รถหางสาลี่ขนส่งคาน', 'Pole trailer (girder)'), new THREE.Vector3(), '#e599f7', 'tr' + n, 'equip', .3); lb.el = { obj: root };
+    return { root, tractor, dolly, pole, lb };
+  });
+
+  /* ================= own one-way traffic on the expressway ================= */
+  { const cg = new THREE.BoxGeometry(4.4, 1.45, 1.9); cg.translate(0, .72, 0);
+    const N = 64, im = new THREE.InstancedMesh(cg, new THREE.MeshStandardMaterial({ roughness: .4, metalness: .5 }), N), col = new THREE.Color(), cd = [];
+    const LANES = [[-21.75, 1], [-25.25, 1], [-28.75, 1], [17.75, -1], [21.25, -1], [24.75, -1]];
+    for (let n = 0; n < N; n++) { const [z, dir] = LANES[n % 6]; const big = R() < .18; cd.push({ z, dir, x: X0 + R() * LEN, v: (big ? 11 : 15) + R() * 6, sx: big ? 2.3 : 1, sy: big ? 2.0 : 1 }); col.setHSL(R(), big ? .1 : .45, R() < .3 ? .9 : .3 + R() * .35); im.setColorAt(n, col); }
+    im.castShadow = true; ctxAdd(im); G.traffic = { im, cd, X0, LEN };
+  }
+
+  /* ================= LIFT-SEQUENCE PANEL (hour-by-hour erection day) ================= */
+  G.SUB = [
+    [5.5, ['Toolbox talk · ตรวจ Lifting plan / พื้นที่ยืนเครน', 'Toolbox talk · lifting plan & crane pads'], ['พื้นบดอัดแน่น ระบายน้ำดี ไม่มีน้ำขัง · ตรวจสลิง 1½"/2" สเก็นโอเมก้า 35/50 t', 'Compacted, drained ground · check 1½"/2" slings, 35/50 t omega shackles']],
+    [5.9, ['1. นำเครนเข้าตำแหน่งทั้ง 2 คัน (ฝั่งขาเข้า)', '1. Position both cranes (inbound side)'], ['กาง Outrigger เต็มช่วง · Boom 21.6 m · รัศมี 5–12 m', 'Full outrigger base · 21.6 m boom · radius 5–12 m']],
+    [6.45, ['2. ขนส่งชิ้นงาน – รถหางสาลี่เข้าจอดใต้ช่วง', '2. Delivery – pole trailer parks in the span'], ['โฟร์แมนเรียกรถเข้าตามลำดับ · ตรวจทิศ Down Sta. / Up Sta. ห้ามสลับ', 'Foreman calls trailers in order · check Down / Up Sta. ends – never swap']],
+    [7.0, ['3. ยกคานตัวที่ 1 (คานริม) – STEP 1', '3. Lift girder 1 (edge) – STEP 1'], ['Tandem lift 2 เครน → วางบนแผ่นยาง → Side bracing ยึด Stud bolt M16', 'Two-crane tandem lift → set on pads → side bracing with M16 stud bolts']],
+    [8.25, ['3. ยกคานตัวที่ 2 – STEP 2', '3. Lift girder 2 – STEP 2'], ['Top bracing C100×50×5×7.5 ยึดคาน 1–2 ก่อนยกตัวถัดไป', 'Top bracing C100×50×5×7.5 ties girders 1–2 before the next lift']],
+    [9.5, ['3. ยกคานตัวที่ 3 – STEP 3', '3. Lift girder 3 – STEP 3'], ['Top bracing คาน 2–3', 'Top bracing girders 2–3']],
+    [10.85, ['4. จัดตำแหน่งเครนใหม่ (ไปฝั่งขาออก)', '4. Re-position cranes (to the outbound side)'], ['เก็บ Outrigger → ลอดใต้ช่วงข้างเคียง → กาง Outrigger', 'Retract outriggers → drive under the adjacent span → re-deploy']],
+    [11.5, ['5–6. เครนเข้าตำแหน่ง · ขนส่งคานชุดหลัง', '5–6. Cranes set · second batch delivered'], ['รถหางสาลี่จอดฝั่งขาออกของเกาะกลาง', 'Trailers park on the outbound side of the median']],
+    [12.0, ['7. ยกคานตัวที่ 4 – STEP 4', '7. Lift girder 4 – STEP 4'], ['Top bracing คาน 3–4', 'Top bracing girders 3–4']],
+    [13.25, ['7. ยกคานตัวที่ 5 – STEP 5', '7. Lift girder 5 – STEP 5'], ['Top bracing คาน 4–5', 'Top bracing girders 4–5']],
+    [14.5, ['7. ยกคานตัวที่ 6 (คานริม) – STEP 6', '7. Lift girder 6 (edge) – STEP 6'], ['Side bracing + Top bracing คาน 5–6', 'Side bracing + top bracing girders 5–6']],
+    [15.75, ['8. จบขั้นตอนการยก – ตรวจสอบ', '8. Lifting complete – inspection'], ['แผ่นยางต้องแนบสนิท Down stand · ช่องว่างแก้ด้วย Epoxy resin mortar · ย้ายเครนไป Span ถัดไป', 'Pads seated under the down-stand · gaps → epoxy resin mortar · cranes move to the next span']],
+  ];
+  G.seq = { on: false, h: 5.5, rate: .25, cur: 4 };
+  const st = document.createElement('style'); st.textContent = '#seqP{position:fixed;right:324px;bottom:96px;width:390px;padding:10px 12px;z-index:5;font-size:12px}#seqP .r{display:flex;gap:5px;align-items:center;margin-top:6px}#seqClock{font-size:19px;font-weight:600;margin-top:6px}#seqStep b{display:block;color:var(--acc);margin-top:4px}#seqStep span{color:var(--mut)}body.noui #seqP{display:none!important}body.hideR #seqP{right:12px}@media (max-width:1250px){#seqP{right:12px;width:340px}}@media (max-width:900px){#seqP{left:12px;right:12px;width:auto;bottom:150px}}';
+  document.head.appendChild(st);
+  const P = document.createElement('div'); P.id = 'seqP'; P.className = 'glass';
+  P.innerHTML = `<div style="display:flex;align-items:center;gap:6px"><b class="acc">🏗 ${L2('ขั้นตอนการยกคาน (รายชั่วโมง)', 'Girder lifting sequence (hourly)')}</b><button id="seqMin" style="margin-left:auto;padding:1px 8px">–</button></div>
+    <div id="seqBody"><div class="r"><select id="seqSpan">${SPANS.map((s, n) => `<option value="${n + 1}">Span ${n + 1} · ${s % 1 ? s.toFixed(3) : s} m</option>`).join('')}</select><button id="seqPrev" title="${L2('ขั้นก่อนหน้า', 'Previous step')}">⏮</button><button id="seqPlay" class="on">▶ ${L2('เล่นการยก', 'Play lift')}</button><button id="seqNext" title="${L2('ขั้นถัดไป', 'Next step')}">⏭</button><button id="seqCam" title="${L2('กล้องไปที่ช่วงนี้', 'Camera to this span')}">🎥</button></div>
+    <div id="seqClock"></div><div id="seqStep"></div><div id="seqData" class="mut" style="font-size:11.5px;margin-top:5px"></div></div>`;
+  document.body.appendChild(P);
+  const $q = id => document.getElementById(id);
+  $q('seqMin').onclick = () => { const b = $q('seqBody'); b.style.display = b.style.display === 'none' ? '' : 'none'; $q('seqMin').textContent = b.style.display === 'none' ? '+' : '–'; };
+  const jump = h => { G.seq.h = h; window.__app && window.__app.setNow(Ed(G.seq.cur) + h * HR); };
+  G.aimViews = i => { const s = G.spans[i - 1], V = PROJECT.views, set = (k, p, t) => { V[k].pos.splice(0, 3, ...p); V[k].target.splice(0, 3, ...t); };
+    set('span', [s.xm + 26, 26, -38], [s.xm - 2, 7, 4]); set('lift', [s.xm - 6, 20, -27], [s.xm + 2, 8.5, 5]); set('section', [s.xa - 16, 13.5, .1], [s.xm, 8.6, 0]);
+    set('median', [s.xa - 28, 2.6, -9.5], [s.xm, 7, 0]); set('traffic', [s.xb + 90, 1.6, 17.75], [s.xm, 3, 15.5]); };
+  const setSpan = (i, go) => { G.seq.cur = i; $q('seqSpan').value = i; G.aimViews(i); if (go) { window.__app && window.__app.goView('span'); } };
+  $q('seqSpan').onchange = e => { setSpan(+e.target.value, true); G.seq.on = false; jump(5.5); };
+  $q('seqPlay').onclick = () => { G.seq.on = !G.seq.on; if (G.seq.on) { if (playing) togglePlay(); const d = (NOW - Ed(G.seq.cur)) / HR; G.seq.h = d >= 5.4 && d < 16.4 ? d : 5.5; } };
+  const stepIdx = h => { let n = 0; G.SUB.forEach(([hh], k) => { if (h >= hh - 1e-6) n = k; }); return n; };
+  $q('seqNext').onclick = () => { G.seq.on = false; const h = (NOW - Ed(G.seq.cur)) / HR, n = stepIdx(h); jump(G.SUB[Math.min(n + 1, G.SUB.length - 1)][0] + .02); };
+  $q('seqPrev').onclick = () => { G.seq.on = false; const h = (NOW - Ed(G.seq.cur)) / HR, n = stepIdx(h); jump(G.SUB[Math.max(n - (h - G.SUB[n][0] > .1 ? 0 : 1), 0)][0] + .02); };
+  $q('seqCam').onclick = () => { G.aimViews(G.seq.cur); window.__app && window.__app.goView('span'); };
+  G.stepIdx = stepIdx; G.setSpan = setSpan;
+  // slow speeds for the main 4D player (hour-level)
+  { const sp = $q('speed'); [['0.00694', L2('10 นาที/วินาที', '10 min/second')], ['0.04167', L2('1 ชม./วินาที', '1 hour/second')]].reverse().forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; sp.insertBefore(o, sp.firstChild); }); }
+  // work lights (tower light sets) that follow the span being erected – on in the night theme
+  G.work = [-1, 1].map(sd => { const l = new THREE.SpotLight(0xfff1d6, 0, 140, .75, .5, 1.1); l.castShadow = false; api.scene.add(l, l.target);
+    const tw = new THREE.Group(); box(1.6, 1.2, 2.2, M.yellow, 0, .6, 0, tw); box(.15, 9, .15, M.lamp, 0, 5.5, 0, tw); box(1.8, .7, .25, M.lampHead, 0, 10, 0, tw); ctxAdd(tw); return { l, tw, sd }; });
+  G.aimViews(4);
+  G.ready = true;
+}
+
+/* ---- per-frame animation: trailers, tandem lift, crane IK, outriggers, traffic, panel ---- */
+function updateProject(api, t, dt) {
+  if (!G.ready) return;
+  const { THREE, lerp, clamp, D, DAY, L2 } = api, HR = G.HR, ss = G.ss, SOF = G.SOF;
+  if (!G.init && window.__app) {        // first frame: put the clock inside the erection day (?h=hours, default 9.1 h)
+    G.init = true; const h = QS.get('h') != null ? +QS.get('h') : 9.1, d0 = D(api.iso(NOW)); const sp = G.spans.find(s => s.E === d0);
+    if (sp) G.setSpan(sp.i, false); if (QS.get('span')) { G.setSpan(+QS.get('span'), false); window.__app.setNow(G.Ed(+QS.get('span')) + h * HR); } else window.__app.setNow(d0 + h * HR);
+    if (QS.get('view') && ['span', 'lift', 'section', 'median', 'traffic'].includes(QS.get('view'))) { window.__app.goView(QS.get('view'), .01); }
+    return;
+  }
+  if (dt > 0) {
+    if (G.seq.on) { if (playing) G.seq.on = false; else { G.seq.h += dt * G.seq.rate; if (G.seq.h > 16.4) { G.seq.h = 16.4; G.seq.on = false; } window.__app.setNow(G.Ed(G.seq.cur) + G.seq.h * HR); return; } }
+    const T = G.traffic, d = new THREE.Object3D(); T.cd.forEach((c, n) => { c.x += c.dir * c.v * dt; if (c.x > T.X0 + T.LEN) c.x -= T.LEN; if (c.x < T.X0) c.x += T.LEN; d.position.set(c.x, 0, c.z); d.rotation.set(0, c.dir > 0 ? 0 : Math.PI, 0); d.scale.set(c.sx, c.sy, 1); d.updateMatrix(); T.im.setMatrixAt(n, d.matrix); }); T.im.instanceMatrix.needsUpdate = true;
+  }
+  const blue = MODE === 'blue';
+  // ---------- girders + trailers ----------
+  G.tr.forEach(r => r.root.visible = false);
+  const attach = [];                                                  // per crane: {hook target, girder pose} while lifting
+  for (const g of G.girders) {
+    const e = g.e, ta = g.Ls - .55 * HR; let p = null, mode = 'final';
+    if (t < ta) mode = 'none';
+    else if (t < g.Ls) { const u = ss((t - ta) / (.5 * HR)); p = [g.xm - 160 * (1 - u), 1.6, g.zt]; mode = 'trailer'; }
+    else if (t < g.Le) { const u = (t - g.Ls) / (g.Le - g.Ls); let y = 1.6, z = g.zt;
+      if (u >= .1 && u < .45) y = lerp(1.6, g.yHigh, ss((u - .1) / .35)); else if (u >= .45 && u < .75) { y = g.yHigh; z = lerp(g.zt, g.z, ss((u - .45) / .3)); } else if (u >= .75) { z = g.z; y = lerp(g.yHigh, SOF, ss((u - .75) / .2)); }
+      p = [g.xm, y, z]; mode = 'lift'; }
+    e.obj.position.set(...(p || [g.xm, SOF, g.z]));
+    if (mode === 'trailer') { e.lookKey = null; e.obj.visible = !catHidden.girder; e.obj.traverse(m => { if (m.isMesh) m.material = m.material === M.ghost ? M.bimWip : m.material === M.blueFill ? m.material : m.userData.base; }); }
+    else if (mode === 'lift') e.obj.traverse(m => { if (m.isMesh && m.material === M.wip) m.material = m.userData.base; });
+    // trailer for this girder
+    if (t >= ta && t < g.Ls + .75 * HR) { const r = G.tr[g.k % 2]; let x = g.xm;
+      if (t < g.Ls) x = g.xm - 160 * (1 - ss((t - ta) / (.5 * HR))); else if (t > g.Ls + .4 * HR) x = g.xm + 160 * ss((t - g.Ls - .4 * HR) / (.35 * HR));
+      r.root.visible = !blue; r.tractor.position.set(x + g.L / 2 - 1.5, 0, g.zt); r.dolly.position.set(x - g.L / 2 + 1.5, 0, g.zt);
+      const a = new THREE.Vector3(x - g.L / 2 + 2.3, 1.0, g.zt), b = new THREE.Vector3(x + g.L / 2 - 2.5, 1.0, g.zt); r.pole.position.copy(a).add(b).multiplyScalar(.5); r.pole.scale.set(.12, .12, a.distanceTo(b)); r.pole.lookAt(b);
+      r.lb.s.position.set(x, 6.2, g.zt); }
+    // hook targets for the two cranes
+    if (t >= g.Ls - .3 * HR && t < g.Le + .25 * HR) {
+      const gp = p || [g.xm, SOF, g.z], pts = [new THREE.Vector3(gp[0] - g.L / 2 + 1.0, gp[1] + g.H, gp[2]), new THREE.Vector3(gp[0] + g.L / 2 - 1.0, gp[1] + g.H, gp[2])];
+      const w = t < g.Ls ? ss((t - (g.Ls - .3 * HR)) / (.3 * HR)) : t < g.Le ? 1 : 1 - ss((t - g.Le) / (.25 * HR));
+      [0, 1].forEach(c => attach[c] = { lp: pts[c], w, slung: t >= g.Ls && t < g.Le });
+    }
+  }
+  // ---------- cranes ----------
+  const angLerp = (a, b, u) => { let d = ((b - a + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI; return a + d * u; };
+  for (const C of G.cr) {
+    // pose from the move list
+    let pose = null, last = C.moves[0].from;
+    for (const m of C.moves) { if (t < m.t0) break; if (t <= m.t1) { const u = (t - m.t0) / (m.t1 - m.t0);
+        const pts = m.from.z * m.to.z < 0 ? [m.from, { x: m.xm, z: m.from.z }, { x: m.xm, z: m.to.z }, m.to] : [m.from, m.to];
+        if (u < .15) pose = { ...m.from, out: m.cold ? 0 : 1 - u / .15, moving: true };
+        else if (u > .88) pose = { ...m.to, out: m.coldEnd ? 0 : (u - .88) / .12, moving: true };
+        else { const v = ss((u - .15) / .73), Ls = []; let tot = 0; for (let n = 1; n < pts.length; n++) { const l = Math.hypot(pts[n].x - pts[n - 1].x, pts[n].z - pts[n - 1].z); Ls.push(l); tot += l; }
+          let s = v * tot, n = 0; while (n < Ls.length - 1 && s > Ls[n]) { s -= Ls[n]; n++; } const A = pts[n], B = pts[n + 1], f = Ls[n] ? s / Ls[n] : 1;
+          let hd = Math.atan2(-(B.z - A.z), B.x - A.x); const k1 = clamp((u - .15) / .07, 0, 1), k2 = clamp((.88 - u) / .07, 0, 1);
+          hd = angLerp(m.from.hd, hd, k1); hd = angLerp(m.to.hd, hd, k2);
+          pose = { x: lerp(A.x, B.x, f), z: lerp(A.z, B.z, f), hd, out: 0, moving: true }; }
+        break; } last = m.to; }
+    if (!pose) pose = { ...last, out: t < C.moves[0].t0 ? 0 : t > C.moves.at(-1).t1 ? 0 : 1, moving: false };
+    const o = C.obj; o.position.set(pose.x, 0, pose.z); o.rotation.y = pose.hd;
+    C.outs.forEach(q => { const u = q.userData, dd = lerp(1.35, 3.3, pose.out); u.beam.scale.z = dd; u.beam.position.z = u.s * dd / 2; u.jack.position.z = u.pd.position.z = u.s * dd; u.pd.position.y = lerp(-.55, -1.2, pose.out); u.jack.scale.y = lerp(.25, 1, pose.out); u.jack.position.y = lerp(-.12, -.45, pose.out); });
+    const f = pose.moving ? pose.out : 1;
+    const sc = new THREE.Vector3(pose.x - 2.5 * Math.cos(pose.hd), 0, pose.z + 2.5 * Math.sin(pose.hd));
+    const sg = Math.sign(pose.z) || 1, idle = new THREE.Vector3(sc.x + (C.c === 0 ? 3.5 : -3.5), 11.5, sc.z - sg * 5);
+    const A = attach[C.c]; let H = idle.clone(); if (A && !pose.moving) H = idle.clone().lerp(A.lp.clone().add(new THREE.Vector3(0, 3.2, 0)), A.w);
+    const dx = H.x - sc.x, dz = H.z - sc.z, yawW = Math.atan2(-dz, dx), th = Math.acos(clamp((Math.hypot(dx, dz) + 1.4) / BLc, 0, .985));
+    C.tur.rotation.y = angLerp(0, yawW - pose.hd, f); C.piv.rotation.z = lerp(.1, th, f);
+    const vis = o.visible && !blue; o.updateMatrixWorld(true);
+    const tip = C.tip.getWorldPosition(new THREE.Vector3()), hook = f >= .999 ? H.clone() : new THREE.Vector3(tip.x, tip.y - lerp(1.6, Math.max(1.6, tip.y - H.y), f), tip.z);
+    if (hook.y > tip.y - 1.2) hook.y = tip.y - 1.2;
+    const setSeg = (m, a, b) => { m.position.copy(a).add(b).multiplyScalar(.5); m.scale.set(m.userData.r, m.userData.r, Math.max(a.distanceTo(b), .01)); m.lookAt(b); };
+    setSeg(C.rope, tip, hook.clone().add(new THREE.Vector3(0, .4, 0))); C.hook.position.copy(hook);
+    const lA = C.tur.localToWorld(new THREE.Vector3(.9, .7, 0)), lB = C.piv.localToWorld(new THREE.Vector3(6.5, -.45, 0)), lM = lA.clone().lerp(lB, .55);
+    setSeg(C.luff, lA, lM); setSeg(C.rod, lM, lB);
+    const slung = A && A.slung && !pose.moving;
+    if (slung) { const hb = hook.clone().add(new THREE.Vector3(0, -.4, 0)); setSeg(C.s1, hb, A.lp.clone().add(new THREE.Vector3(-.35, 0, 0))); setSeg(C.s2, hb, A.lp.clone().add(new THREE.Vector3(.35, 0, 0))); }
+    C.rope.visible = C.hook.visible = C.luff.visible = C.rod.visible = vis; C.s1.visible = C.s2.visible = vis && !!slung;
+    C.lb.s.position.set(pose.x, 23.5, pose.z);
+  }
+  // ---------- work lights at the current / next span ----------
+  { const s = G.spans.find(x => x.E + 17 * HR > t) || G.spans.at(-1); G.work.forEach(w => { const x = s.xm + w.sd * 9, z = w.sd < 0 ? -15.5 : 15.2;
+      w.tw.position.set(x, 0, z); w.tw.rotation.y = 0; w.tw.visible = !blue && t > G.tm[0] && t < G.tm[1]; w.l.position.set(x, 10.3, z); w.l.target.position.set(s.xm, 6, 0); w.l.intensity = isNight && w.tw.visible ? 160 : 0; }); }
+  // ---------- panel ----------
+  const d0 = D(api.iso(t)), h = (t - d0) / HR, sp = G.spans.find(s => s.E === d0), mt = Math.round(h * 60), hh = Math.floor(mt / 60), mm = mt % 60;
+  const key = d0 + '|' + hh + ':' + mm + LANG + G.seq.on;
+  if (key !== G.pkey) { G.pkey = key; const $q = id => document.getElementById(id);
+    if (sp && G.seq.cur !== sp.i && !G.seq.on) G.setSpan(sp.i, false);
+    $q('seqPlay').innerHTML = G.seq.on ? '❚❚ ' + L2('หยุด', 'Pause') : '▶ ' + L2('เล่นการยก', 'Play lift');
+    $q('seqClock').textContent = `${new Date(t).toLocaleDateString(LANG === 'en' ? 'en-GB' : 'th-TH', { day: 'numeric', month: 'short', year: 'numeric' })} · ${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')} ${L2('น.', '')}`;
+    const s = G.spans[G.seq.cur - 1];
+    if (sp && h >= 5.4 && h < 16.5) { const n = G.stepIdx(h), S = G.SUB[n]; $q('seqStep').innerHTML = `<b>Span ${sp.i} · ${tx(S[1])}</b><span>${tx(S[2])}</span>`; }
+    else { const nx = G.spans.find(x => x.E + 16.5 * HR > t); $q('seqStep').innerHTML = nx ? `<b>${L2('ไม่มีงานยก ณ เวลานี้', 'No lifting at this time')}</b><span>${L2('ยกครั้งถัดไป', 'Next lift')}: Span ${nx.i} · ${new Date(nx.E).toLocaleDateString(LANG === 'en' ? 'en-GB' : 'th-TH', { day: 'numeric', month: 'short' })} 07:00 · ${L2('กด ▶ เล่นการยก', 'press ▶ Play lift')}</span>` : `<b>${L2('ยกคานครบ 108 ตัวแล้ว', 'All 108 girders erected')}</b>`; }
+    const pct = s.L < 19 ? '74.05' : '72.66', R0 = s.L < 19 ? '12' : '8–9', cap = s.L < 19 ? '28.5' : '43.5';
+    $q('seqData').innerHTML = `Span ${s.i}: ${L2('คาน', 'girder')} ${s.L.toFixed(2)} m · H ${s.H} m · ≈ ${s.W} t → ${(s.W / 2).toFixed(0)} t/${L2('เครน', 'crane')}<br>ZTC1100R · Boom 21.6 m · R ${R0} m · ${L2('รับได้', 'capacity')} ${cap} t · Lifting capacity ${pct} % (PPT)`;
+  }
+}
+const BLc = 21.6;
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+   END OF PROJECT BLOCK
+   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+
+/* =====================================================================================
+   ENGINE – UI strings (TH / EN)
+   ===================================================================================== */
+const NS = 'bim4d.' + PROJECT.id + '.';
+const store = { get: (k, d) => { try { const v = localStorage.getItem(NS + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set: (k, v) => { try { localStorage.setItem(NS + k, JSON.stringify(v)); } catch (e) { } }, del: k => { try { localStorage.removeItem(NS + k); } catch (e) { } } };
+LANG = store.get('lang', 'th'); if (QS.get('lang') === 'en' || QS.get('lang') === 'th') LANG = QS.get('lang');
+document.documentElement.lang = LANG;
+const UI = {
+  panels: ['☰ แผง', '☰ Panels'], tour: ['🚁<span class="lbl"> Drone Tour</span>', '🚁<span class="lbl"> Drone tour</span>'], fly: ['🎮<span class="lbl"> บินโดรนเอง</span>', '🎮<span class="lbl"> Fly drone</span>'],
+  sound: ['🔇<span class="lbl"> เสียง</span>', '🔇<span class="lbl"> Sound</span>'], music: ['♪<span class="lbl"> ดนตรี</span>', '♪<span class="lbl"> Music</span>'],
+  shot: ['บันทึกภาพหน้าจอ PNG', 'Save screenshot (PNG)'], glb: ['Export โมเดล 3D เป็น GLB', 'Export 3D model as GLB'],
+  import: ['📂<span class="lbl"> อัปเดตแผน</span>', '📂<span class="lbl"> Update programme</span>'], importT: ['อัปโหลดแผนงาน (PDF / MS Project XML / CSV / JSON)', 'Upload a programme (PDF / MS Project XML / CSV / JSON)'],
+  labels: ['🏷<span class="lbl"> ป้าย</span>', '🏷<span class="lbl"> Labels</span>'], labelsT: ['เปิด/ปิดข้อความกำกับโมเดล (L)', 'Show / hide annotations (L)'],
+  panelL: ['เปิด/ปิดแผงซ้าย ([)', 'Show / hide left panel ([)'], panelR: ['เปิด/ปิดแผงขวา (])', 'Show / hide right panel (])'], hideUI: ['ซ่อน UI (H)', 'Hide UI (H)'],
+  tabGantt: ['4D แผนงาน', '4D programme'], tabMS: ['Method Statement', 'Method statement'], tabModel: ['โมเดล BIM', 'BIM model'], tabSrc: ['ข้อมูลแบบ', 'Data sources'],
+  simDate: ['วันที่จำลอง (4D)', 'Simulation date (4D)'], scurve: ['S-Curve แผนงาน', 'Programme S-curve'], activities: ['กิจกรรมที่กำลังดำเนินการ', 'Activities in progress'],
+  impTitle: ['📂 อัปเดตแผนงาน 4D จากไฟล์', '📂 Update the 4D programme from a file'],
+  impHelp: ['รองรับ: <b>PDF</b> ที่พิมพ์จาก MS Project (ID / Task Name / Duration / Start / Finish) · <b>MS Project XML</b> · <b>CSV</b> (ID, Task Name, Start, Finish) · <b>JSON</b><br>ไฟล์ .mpp ต้องแปลงเป็น XML/PDF ก่อน', 'Supported: <b>PDF</b> printed from MS Project (ID / Task Name / Duration / Start / Finish) · <b>MS Project XML</b> · <b>CSV</b> (ID, Task Name, Start, Finish) · <b>JSON</b><br>.mpp must be converted to XML/PDF first'],
+  impDrop: ['ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์<br><small>.pdf · .xml · .csv · .json</small>', 'Drop a file here or click to choose<br><small>.pdf · .xml · .csv · .json</small>'],
+  impReset: ['↺ ใช้แผนเริ่มต้น', '↺ Use default programme'], impExport: ['⬇ schedule.json ปัจจุบัน', '⬇ current schedule.json'], impApply: ['✔ นำไปใช้กับแบบจำลอง', '✔ Apply to the model'],
+  flyHelp: ['โหมดบินโดรน: W/A/S/D เคลื่อนที่ · R/F ขึ้น/ลง · ลากเมาส์หันกล้อง · Shift เร่ง · Esc ออก', 'Drone mode: W/A/S/D move · R/F up/down · drag to look · Shift = faster · Esc = exit'],
+  play: ['▶ เล่น 4D', '▶ Play 4D'], pause: ['❚❚ หยุด', '❚❚ Pause'], speeds: [['2 วัน/วินาที', '1 สัปดาห์/วินาที', '15 วัน/วินาที', '1 เดือน/วินาที'], ['2 days/second', '1 week/second', '15 days/second', '1 month/second']],
+};
+document.querySelectorAll('[data-i]').forEach(el => el.innerHTML = tx(UI[el.dataset.i]));
+document.querySelectorAll('[data-it]').forEach(el => el.title = tx(UI[el.dataset.it]));
+document.querySelectorAll('#speed option').forEach((o, i) => o.textContent = (LANG === 'en' ? UI.speeds[1] : UI.speeds[0])[i]);
+document.getElementById('ttl').textContent = tx(PROJECT.title); document.getElementById('sub').textContent = tx(PROJECT.subtitle);
+document.getElementById('loadTxt').textContent = tx(PROJECT.title) + ' …';
+const T0 = D(PROJECT.T0), T1 = D(PROJECT.T1), OPEN = D(PROJECT.openDate || PROJECT.T1);
+
+/* ---- schedule: defaults + user upload (browser storage) ---- */
+const SCHED_USER = store.get('schedule', null);
+const SDATES = Object.assign({}, PROJECT.schedule.dates, SCHED_USER && SCHED_USER.dates || {});
+const SCHED = { user: !!(SCHED_USER && SCHED_USER.dates), source: SCHED_USER ? SCHED_USER.source : tx(PROJECT.schedule.sourceName), imported: SCHED_USER && SCHED_USER.imported };
+const SRC = SCHED.user ? 'Uploaded: ' + SCHED.source : tx(PROJECT.schedule.sourceName);
+
+/* =====================================================================================
+   RENDERER / SCENE
+   ===================================================================================== */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5)); renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.5, 9000);
+const controls = new OrbitControls(camera, canvas); controls.enableDamping = true; controls.maxPolarAngle = Math.PI * .495; controls.maxDistance = 2500;
+const CEN = new THREE.Vector3(...PROJECT.center); controls.target.copy(CEN);
+const composer = new EffectComposer(renderer); composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .8, .5, .82); composer.addPass(bloom); composer.addPass(new OutputPass());
+const hemi = new THREE.HemisphereLight(0xdfefff, 0x5a5040, .6); scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096);
+Object.assign(sun.shadow.camera, { left: -300, right: 300, top: 300, bottom: -300, near: 10, far: 1600 }); sun.shadow.bias = -.0004; sun.shadow.normalBias = .6; sun.target.position.copy(CEN); scene.add(sun, sun.target);
+const gStruct = new THREE.Group(), gCtx = new THREE.Group(), gLabels = new THREE.Group(); scene.add(gStruct, gCtx, gLabels);
+
+/* ---- annotations ---- */
+const LABELS = [], LBL = Object.assign({ all: true, off: [] }, store.get('labels', {}));
+if (QS.get('labels') === '0') LBL.all = false; if (QS.get('lbloff')) LBL.off = QS.get('lbloff').split(',');
+const saveLBL = () => store.set('labels', LBL);
+function applyLabels() { for (const l of LABELS) l.s.visible = LBL.all && !LBL.off.includes(l.key) && (!l.el || l.el.obj.visible); document.getElementById('btnLbl').classList.toggle('on', LBL.all); }
+
+/* ---- procedural textures ---- */
+function cnv(w, h, f) { const c = document.createElement('canvas'); c.width = w; c.height = h; f(c.getContext('2d'), w, h); return c; }
+const R = (seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; })(20250128);
+const ctex = (c, rep = true) => { const t = new THREE.CanvasTexture(c); if (rep) t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; };
+function texConcrete(base) { return ctex(cnv(512, 512, (g, w, h) => { g.fillStyle = base; g.fillRect(0, 0, w, h); for (let i = 0; i < 9000; i++) { const v = 150 + R() * 90 | 0; g.fillStyle = `rgba(${v},${v},${v - 6},${R() * .12})`; g.fillRect(R() * w, R() * h, 1 + R() * 3, 1 + R() * 3); } g.strokeStyle = 'rgba(60,60,60,.18)'; g.lineWidth = 2; for (let x = 0; x <= w; x += 128) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); } for (let y = 0; y <= h; y += 256) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); } })); }
+function texLattice(col) { return ctex(cnv(128, 128, (g, w, h) => { g.strokeStyle = col; g.lineWidth = 7; g.strokeRect(3, 3, w - 6, h - 6); g.lineWidth = 4; g.beginPath(); g.moveTo(0, 0); g.lineTo(w, h); g.moveTo(w, 0); g.lineTo(0, h); g.stroke(); })); }
+function texWindows(lit) { return ctex(cnv(256, 512, (g, w, h) => { g.fillStyle = lit ? '#000' : '#c9c5bd'; g.fillRect(0, 0, w, h); for (let y = 8; y < h; y += 32) for (let x = 8; x < w; x += 32) { g.fillStyle = lit ? (R() < .45 ? `rgb(255,${200 + R() * 40 | 0},${120 + R() * 60 | 0})` : '#000') : (R() < .5 ? '#40556b' : '#5a7088'); g.fillRect(x, y, 18, 20); } })); }
+function texWaterNormals() { const N = 256, waves = []; for (let i = 0; i < 28; i++) { const fx = 1 + (R() * 14 | 0), fy = (R() * 14 | 0) - 7; waves.push([fx, fy, R() * 6.28, 1 / Math.hypot(fx, fy)]); } const hgt = (x, y) => { let v = 0; for (const [fx, fy, ph, a] of waves) v += a * Math.sin(2 * Math.PI * (fx * x + fy * y) / N + ph); return v; };
+  const t = new THREE.CanvasTexture(cnv(N, N, g => { const img = g.createImageData(N, N); for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const dx = (hgt(x + 1, y) - hgt(x - 1, y)) * 1.3, dy = (hgt(x, y + 1) - hgt(x, y - 1)) * 1.3, l = Math.hypot(dx, dy, 1), i = (y * N + x) * 4; img.data[i] = (-dx / l * .5 + .5) * 255; img.data[i + 1] = (-dy / l * .5 + .5) * 255; img.data[i + 2] = (1 / l * .5 + .5) * 255; img.data[i + 3] = 255; } g.putImageData(img, 0, 0); })); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; }
+function texGround(a, b) { return ctex(cnv(512, 512, (g, w, h) => { g.fillStyle = a; g.fillRect(0, 0, w, h); for (let i = 0; i < 14000; i++) { g.fillStyle = R() < .5 ? b : 'rgba(255,255,255,.05)'; g.globalAlpha = R() * .5; g.fillRect(R() * w, R() * h, 2, 2); } g.globalAlpha = 1; })); }
+function gradientTex(top, bot) { return ctex(cnv(4, 256, (g, w, h) => { const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, top); gr.addColorStop(1, bot); g.fillStyle = gr; g.fillRect(0, 0, w, h); }), false); }
+
+/* ---- materials (shared palette – projects may add their own) ---- */
+const tConc = texConcrete('#bdbab2'), tLat = texLattice('#f2b705'), tLatR = texLattice('#d9480f');
+const M = {
+  conc: new THREE.MeshStandardMaterial({ color: 0xd2cec6, map: tConc, roughness: .88, side: THREE.DoubleSide }), concDark: new THREE.MeshStandardMaterial({ color: 0x9d9a93, map: tConc, roughness: .9 }),
+  pylon: new THREE.MeshStandardMaterial({ color: 0xeeeae2, map: tConc, roughness: .75 }), pylonDark: new THREE.MeshStandardMaterial({ color: 0x9aa1a9, map: tConc, roughness: .7 }),
+  fresh: new THREE.MeshStandardMaterial({ color: 0x7f7c76, map: tConc, roughness: .55, side: THREE.DoubleSide }), rebar: new THREE.MeshStandardMaterial({ color: 0xd9480f, emissive: 0x6b1d00, wireframe: true, transparent: true, opacity: .85 }),
+  wip: new THREE.MeshStandardMaterial({ color: 0xffa94d, emissive: 0x4a2000, roughness: .7, transparent: true, opacity: .9 }), gold: new THREE.MeshStandardMaterial({ color: 0xd9a520, metalness: .9, roughness: .28 }),
+  cable: new THREE.MeshStandardMaterial({ color: 0xe9c54a, metalness: .35, roughness: .38 }), cableWip: new THREE.MeshStandardMaterial({ color: 0xff5a1f, emissive: 0x6a1a00, roughness: .4 }),
+  steel: new THREE.MeshStandardMaterial({ color: 0xd9480f, metalness: .4, roughness: .55 }), yellow: new THREE.MeshStandardMaterial({ color: 0xf5b700, metalness: .3, roughness: .6 }),
+  timber: new THREE.MeshStandardMaterial({ color: 0x8a6a4a, roughness: .9 }), dark: new THREE.MeshStandardMaterial({ color: 0x2f3439, metalness: .5, roughness: .6 }),
+  latY: new THREE.MeshStandardMaterial({ map: tLat, transparent: true, alphaTest: .3, side: THREE.DoubleSide, roughness: .6 }), latR: new THREE.MeshStandardMaterial({ map: tLatR, transparent: true, alphaTest: .3, side: THREE.DoubleSide, roughness: .6 }),
+  barrier: new THREE.MeshStandardMaterial({ color: 0xe1ddd5, roughness: .8 }), rail: new THREE.MeshStandardMaterial({ color: 0xc9a227, metalness: .8, roughness: .35 }),
+  water: new THREE.MeshStandardMaterial({ color: 0x1c7ed6, metalness: .3, roughness: .4 }), elec: new THREE.MeshStandardMaterial({ color: 0xf08c00, metalness: .3, roughness: .5 }),
+  lamp: new THREE.MeshStandardMaterial({ color: 0x868e96, metalness: .7, roughness: .4 }), lampHead: new THREE.MeshStandardMaterial({ color: 0xfff3bf }), avi: new THREE.MeshStandardMaterial({ color: 0xff2222 }),
+  white: new THREE.MeshStandardMaterial({ color: 0xf8f5ee, roughness: .7 }), rock: new THREE.MeshStandardMaterial({ color: 0x6b5e4f, roughness: 1 }),
+  ghost: new THREE.MeshBasicMaterial({ color: 0x4dabf7, transparent: true, opacity: .07, depthWrite: false }), bimWip: new THREE.MeshLambertMaterial({ color: 0xff7f1f, emissive: 0x552200 }),
+  bimTemp: new THREE.MeshLambertMaterial({ color: 0xffd43b, transparent: true, opacity: .55 }), blueFill: new THREE.MeshBasicMaterial({ color: 0x0b2a4a, transparent: true, opacity: .25, depthWrite: false }),
+};
+const LM = { done: new THREE.LineBasicMaterial({ color: 0x74d7ff }), wip: new THREE.LineBasicMaterial({ color: 0xffa94d }), temp: new THREE.LineBasicMaterial({ color: 0xffe066, transparent: true, opacity: .6 }), plan: new THREE.LineBasicMaterial({ color: 0x2b5a85, transparent: true, opacity: .35 }) };
+
+/* =====================================================================================
+   BIM REGISTRY + GEOMETRY HELPERS
+   ===================================================================================== */
+const CATS = {}; for (const [k, v] of Object.entries(PROJECT.categories)) CATS[k] = { th: tx(v.t), grp: v.grp, c: v.c };
+const catHidden = {}, ELS = [], elById = {};
+const toT = v => typeof v === 'string' ? D(v) : v;
+function addEl(o) {
+  ['start', 'finish', 'rmS', 'rmE', 'cast'].forEach(k => { if (o[k] != null) o[k] = toT(o[k]); });
+  if (o.kind === 'seg') o.kind = 'cast';
+  o.kind = o.kind || 'gen'; o.src = o.src || SRC; o.grp = o.grp || CATS[o.cat]?.th || o.cat;
+  if (o.kind === 'cast' && o.cast == null) o.cast = o.start + (o.finish - o.start) * .75;
+  o.obj.traverse(m => { if (m.isMesh) { m.userData.el = o; m.userData.base = m.material; m.castShadow = !o.noShadow; m.receiveShadow = true; } });
+  o.obj.userData.el = o; gStruct.add(o.obj);
+  const box = new THREE.Box3().setFromObject(o.obj); o.center = box.getCenter(new THREE.Vector3()); o.box = box;
+  ELS.push(o); elById[o.id] = o; return o;
+}
+const mesh = (g, m) => new THREE.Mesh(g, m);
+function member(a, b, t, mat) { const len = a.distanceTo(b), m = mesh(new THREE.BoxGeometry(t, t, len), mat); m.position.copy(a).add(b).multiplyScalar(.5); m.lookAt(b); return m; }
+function taper(h, Lb, Wb, Lt, Wt) { const g = new THREE.BoxGeometry(1, h, 1), p = g.attributes.position; for (let i = 0; i < p.count; i++) { const t = (p.getY(i) + h / 2) / h; p.setX(i, p.getX(i) * lerp(Lb, Lt, t)); p.setZ(i, p.getZ(i) * lerp(Wb, Wt, t)); } g.translate(0, h / 2, 0); g.computeVertexNormals(); return g; }
+function stadium(len, wid, depth, holeIn = 0) { const r = wid / 2, st = len / 2 - r, sh = new THREE.Shape(); sh.absarc(0, st, r, 0, Math.PI, false); sh.absarc(0, -st, r, Math.PI, Math.PI * 2, false); if (holeIn > 0) { const h = new THREE.Path(), r2 = r - holeIn; h.absarc(0, st, r2, 0, Math.PI, false); h.absarc(0, -st, r2, Math.PI, Math.PI * 2, false); sh.holes.push(h); } const g = new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: false, curveSegments: 24 }); g.rotateX(-Math.PI / 2); return g; }
+/* extrudeProfile: 2-D section (array of [u,v] incl. optional holes) swept along a 3-D path given as fn(s) → {p: Vector3, t: tangent}; used for box girders, tunnels, walls … */
+function sweep(section, holes, s0, s1, n, at) {
+  const frame = s => { const { p, t } = at(s), up = new THREE.Vector3(0, 1, 0), side = new THREE.Vector3().crossVectors(t, up).normalize(), u2 = new THREE.Vector3().crossVectors(side, t).normalize(); return { p, side, u2 }; };
+  const rings = []; for (let i = 0; i <= n; i++) { const s = lerp(s0, s1, i / n), f = frame(s); rings.push(section.map(([u, v]) => f.p.clone().addScaledVector(f.side, u).addScaledVector(f.u2, v))); }
+  const pos = [], idx = [], m = section.length;
+  for (let e = 0; e < m; e++) { const e2 = (e + 1) % m, base = pos.length / 3; for (let i = 0; i <= n; i++) { const A = rings[i][e], B = rings[i][e2]; pos.push(A.x, A.y, A.z, B.x, B.y, B.z); } for (let i = 0; i < n; i++) { const a = base + i * 2; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); } }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+  const cap = s => { const f = frame(s), sh = new THREE.Shape(section.map(([u, v]) => new THREE.Vector2(u, v))); (holes || []).forEach(h => sh.holes.push(new THREE.Path(h.map(([u, v]) => new THREE.Vector2(u, v))))); const cg = new THREE.ShapeGeometry(sh), p = cg.attributes.position; for (let i = 0; i < p.count; i++) { const v = f.p.clone().addScaledVector(f.side, p.getX(i)).addScaledVector(f.u2, p.getY(i)); p.setXYZ(i, v.x, v.y, v.z); } cg.deleteAttribute('uv'); cg.computeVertexNormals(); return cg; };
+  return mergeGeometries([g, cap(s0), cap(s1)]);
+}
+function makeCrane(H, jib) {   // tower crane: mast, slewing jib (userData.slew), trolley (userData.trol)
+  const g = new THREE.Group(), mast = mesh(new THREE.BoxGeometry(2, H, 2), M.latY.clone()); mast.material.map = tLat.clone(); mast.material.map.repeat.set(1, H / 2); mast.material.map.needsUpdate = true; mast.position.y = H / 2; g.add(mast);
+  const slew = new THREE.Group(); slew.position.y = H; g.add(slew); g.userData.slew = slew;
+  const jb = mesh(new THREE.BoxGeometry(1, 1.6, 1.6), M.latY); jb.geometry.translate(.5, 0, 0); jb.scale.x = jib; slew.add(jb); g.userData.jib = jb;
+  const cj = mesh(new THREE.BoxGeometry(14, 1.4, 1.6), M.latY); cj.position.x = -7; slew.add(cj); const cw = mesh(new THREE.BoxGeometry(3, 2.5, 2.2), M.concDark); cw.position.set(-12.5, -1.6, 0); slew.add(cw);
+  const cab = mesh(new THREE.BoxGeometry(2.4, 2.2, 2.2), M.yellow); cab.position.set(1.5, -1.5, 1.8); slew.add(cab); const apex = mesh(new THREE.ConeGeometry(1.2, 7, 4), M.latY); apex.position.y = 4.3; slew.add(apex);
+  const trol = new THREE.Group(); trol.position.x = jib * .6; slew.add(trol); g.userData.trol = trol;
+  const line = mesh(new THREE.CylinderGeometry(.04, .04, 1, 4), M.dark); line.geometry.translate(0, -.5, 0); line.scale.y = H * .6; trol.add(line);
+  const hook = mesh(new THREE.BoxGeometry(.8, 1, .8), M.steel); hook.position.y = -H * .6; trol.add(hook); return g;
+}
+function label(txt, pos, col = '#f0b429', key = txt, grp = 'struct', scale = 1) {
+  const mc = document.createElement('canvas').getContext('2d'); mc.font = 'bold 44px IBM Plex Sans Thai, sans-serif'; const cw = Math.max(256, Math.ceil(mc.measureText(txt).width) + 64);
+  const c = cnv(cw, 96, (g, w, h) => { g.fillStyle = 'rgba(10,16,28,.78)'; g.beginPath(); g.roundRect(8, 8, w - 16, h - 16, 18); g.fill(); g.strokeStyle = col; g.lineWidth = 4; g.stroke(); g.fillStyle = '#fff'; g.font = 'bold 44px IBM Plex Sans Thai, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(txt, w / 2, h / 2 + 2); });
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false, transparent: true })); s.position.copy(pos); s.scale.set(5.25 * cw / 96 * scale, 5.25 * scale, 1); s.renderOrder = 10;
+  gLabels.add(s); const l = { key, txt, grp, s, col }; LABELS.push(l); return l;   // set l.el = element to hide the label when that element is not visible
+}
+const date = (key, fallback) => { const v = SDATES[key] || fallback; if (!v) throw new Error('No date for schedule key "' + key + '"'); return v; };
+
+/* ---- API passed to the project ---- */
+const api = { THREE, M, LM, mesh, member, taper, stadium, sweep, makeCrane, label, addEl, elById, ELS, date, dates: SDATES, D, DAY, addD, iso, lerp, clamp, R, L2, tx, gStruct, gCtx, scene, camera, mergeGeometries, texConcrete, texLattice, cnv, ctex, SRC, CATS };
+
+/* =====================================================================================
+   CONTEXT – ground, optional river, city, trees, traffic, sky
+   ===================================================================================== */
+const CX = PROJECT.context || {}, GY = CX.groundY ?? 0;
+api.GY = GY;
+const tGrass = texGround('#5f7d45', 'rgba(40,60,30,.6)'); const groundMat = new THREE.MeshStandardMaterial({ map: tGrass, roughness: 1 });
+let water = null, flatWater = null, bed = null;
+const groundMeshes = [];
+if (CX.water) {   // river: left/right bank polylines [[z, x], …] (x = bank position along main axis at lateral z)
+  const W = CX.water, ZR = 3000, zs = []; for (let z = -ZR; z <= ZR; z += 25) zs.push(z);
+  const bankAt = (T, z) => { if (z <= T[0][0]) return T[0][1]; if (z >= T.at(-1)[0]) return T.at(-1)[1]; for (let i = 0; i < T.length - 1; i++) if (z <= T[i + 1][0]) return lerp(T[i][1], T[i + 1][1], (z - T[i][0]) / (T[i + 1][0] - T[i][0])); };
+  const bl = z => bankAt(W.left, z), br = z => bankAt(W.right, z); api.bankL = bl; api.bankR = br;
+  const cx = (bl(0) + br(0)) / 2, wid = Math.abs(br(0) - bl(0)) + 1200;
+  water = new Water(new THREE.PlaneGeometry(wid, 2 * ZR), { textureWidth: 1024, textureHeight: 1024, waterNormals: texWaterNormals(), sunDirection: new THREE.Vector3(), sunColor: 0xffffff, waterColor: 0x3d4f3a, distortionScale: 1.1, fog: true });
+  water.rotation.x = -Math.PI / 2; water.position.set(cx, W.y, 0); water.material.uniforms.size.value = 2.2; gCtx.add(water);
+  flatWater = mesh(new THREE.PlaneGeometry(wid, 2 * ZR), new THREE.MeshBasicMaterial({ color: 0x74c0fc, transparent: true, opacity: .22, depthWrite: false })); flatWater.rotation.x = -Math.PI / 2; flatWater.position.set(cx, W.y, 0); flatWater.visible = false; scene.add(flatWater);
+  bed = mesh(new THREE.PlaneGeometry(wid, 2 * ZR), new THREE.MeshStandardMaterial({ color: 0x4a4436, roughness: 1 })); bed.rotation.x = -Math.PI / 2; bed.position.set(cx, W.bedY, 0); gCtx.add(bed);
+  [[-1, bl], [1, br]].forEach(([side, f]) => {
+    const pts = side < 0 ? [[-4000, -ZR], ...zs.map(z => [f(z), z]), [-4000, ZR]] : [[4500, ZR], ...zs.slice().reverse().map(z => [f(z), z]), [4500, -ZR]];
+    const g = new THREE.ShapeGeometry(new THREE.Shape(pts.map(([x, z]) => new THREE.Vector2(x, -z)))); g.rotateX(-Math.PI / 2); const uv = g.attributes.uv, ps = g.attributes.position; for (let i = 0; i < ps.count; i++) uv.setXY(i, ps.getX(i) / 50, ps.getZ(i) / 50);
+    const gm = mesh(g, groundMat); gm.position.y = GY; gm.receiveShadow = true; gCtx.add(gm); groundMeshes.push(gm);
+    const pos = [], idx = []; zs.forEach((z, i) => { const x = f(z); pos.push(x, W.bedY, z, x, GY, z); if (i) { const a = (i - 1) * 2; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); } });
+    const wg = new THREE.BufferGeometry(); wg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); wg.setIndex(idx); wg.computeVertexNormals(); const wm = mesh(wg, M.concDark.clone()); wm.material.side = THREE.DoubleSide; wm.userData.bank = true; gCtx.add(wm);
+  });
+} else { const gm = mesh(new THREE.PlaneGeometry(8000, 8000), groundMat); gm.rotation.x = -Math.PI / 2; gm.position.set(CEN.x, GY - .02, CEN.z); gm.receiveShadow = true; gCtx.add(gm); groundMeshes.push(gm); tGrass.repeat.set(160, 160); }
+const inExclude = (x, z) => (CX.city?.exclude || []).some(([x0, z0, x1, z1]) => x >= Math.min(x0, x1) && x <= Math.max(x0, x1) && z >= Math.min(z0, z1) && z <= Math.max(z0, z1));
+const inWater = (x, z) => CX.water && x > Math.min(api.bankL(z), api.bankR(z)) - 6 && x < Math.max(api.bankL(z), api.bankR(z)) + 6;
+const winDay = texWindows(false), winNight = texWindows(true);
+const bldMat = new THREE.MeshStandardMaterial({ map: winDay, emissiveMap: winNight, emissive: 0xffffff, emissiveIntensity: 0, roughness: .8 });
+let city = new THREE.Group(); const col = new THREE.Color(), mtx = new THREE.Matrix4();
+if (CX.city) { const [r0, r1] = CX.city.radius || [120, 1000], list = [];
+  for (let i = 0; i < CX.city.count * 4 && list.length < CX.city.count; i++) { const a = R() * Math.PI * 2, r = r0 + R() * (r1 - r0), x = CEN.x + Math.cos(a) * r, z = CEN.z + Math.sin(a) * r; if (inExclude(x, z) || inWater(x, z)) continue; const far = (r - r0) / (r1 - r0); list.push([x, z, 14 + R() * 26, 14 + R() * 26, r < r0 + 250 ? 5 + R() * 14 : 8 + R() * R() * (45 + 90 * far)]); }
+  const bg = new THREE.BoxGeometry(1, 1, 1); bg.translate(0, .5, 0); city = new THREE.InstancedMesh(bg, bldMat, list.length);
+  list.forEach(([x, z, w, d, h], i) => { mtx.compose(new THREE.Vector3(x, GY, z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), (R() - .5) * .3), new THREE.Vector3(w, h, d)); city.setMatrixAt(i, mtx); col.setHSL(.08 + R() * .08, .08 + R() * .1, .72 + R() * .2); city.setColorAt(i, col); });
+  city.castShadow = city.receiveShadow = true; gCtx.add(city); }
+const treeMat = new THREE.MeshStandardMaterial({ color: 0x3f6b2f, roughness: 1, flatShading: true }); const nT = CX.trees || 0;
+const trees = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), treeMat, Math.max(1, nT));
+for (let i = 0; i < nT; i++) { const a = R() * Math.PI * 2, r = 40 + R() * 500, x = CEN.x + Math.cos(a) * r, z = CEN.z + Math.sin(a) * r, ok = !inExclude(x, z) && !inWater(x, z), s = ok ? 2.5 + R() * 3 : .001; mtx.compose(new THREE.Vector3(x, GY + 3 + s * .6, z), new THREE.Quaternion(), new THREE.Vector3(s, s * 1.1, s)); trees.setMatrixAt(i, mtx); col.setHSL(.25 + R() * .08, .45, .25 + R() * .12); trees.setColorAt(i, col); }
+trees.castShadow = true; gCtx.add(trees);
+// traffic on context roads (straight segments)
+const roads = CX.traffic?.roads || [], NC = roads.length ? CX.traffic.count || 30 : 0;
+const asphalt = new THREE.MeshStandardMaterial({ color: 0x404347, roughness: .95 });
+roads.forEach(rd => { const len = Math.hypot(rd.x1 - rd.x0, rd.z1 - rd.z0), wd = (rd.lanes || 2) * 3.5 * 2, m = mesh(new THREE.PlaneGeometry(len, wd), asphalt); m.rotation.x = -Math.PI / 2; m.rotation.z = -Math.atan2(rd.z1 - rd.z0, rd.x1 - rd.x0); m.position.set((rd.x0 + rd.x1) / 2, GY + .03, (rd.z0 + rd.z1) / 2); m.receiveShadow = true; gCtx.add(m); });
+const carGeo = new THREE.BoxGeometry(4.6, 1.5, 2); carGeo.translate(0, .75, 0);
+const cars = new THREE.InstancedMesh(carGeo, new THREE.MeshStandardMaterial({ roughness: .4, metalness: .5 }), Math.max(1, NC)), carData = [];
+for (let i = 0; i < NC; i++) { carData.push({ r: roads[i % roads.length], lane: R() * (roads[i % roads.length].lanes || 2) | 0, dir: R() < .5 ? 1 : -1, p: R(), v: 9 + R() * 6 }); col.setHSL(R(), .5, R() < .3 ? .9 : .35 + R() * .3); cars.setColorAt(i, col); }
+gCtx.add(cars);
+function updateCars(dt) { const d = new THREE.Object3D(); carData.forEach((c, i) => { const len = Math.hypot(c.r.x1 - c.r.x0, c.r.z1 - c.r.z0), a = Math.atan2(c.r.z1 - c.r.z0, c.r.x1 - c.r.x0); c.p = (c.p + dt * c.v / len * c.dir + 1) % 1; const off = c.dir * (1.8 + c.lane * 3.5); d.position.set(lerp(c.r.x0, c.r.x1, c.p) - Math.sin(a) * off, GY + .05, lerp(c.r.z0, c.r.z1, c.p) + Math.cos(a) * off); d.rotation.set(0, -a + (c.dir > 0 ? 0 : Math.PI), 0); d.updateMatrix(); cars.setMatrixAt(i, d.matrix); }); cars.instanceMatrix.needsUpdate = true; }
+// sky, stars
+const sky = new Sky(); sky.scale.setScalar(20000); scene.add(sky);
+const sg = new THREE.BufferGeometry(), sp = []; for (let i = 0; i < 2500; i++) { const th = R() * Math.PI * 2, ph = Math.acos(R() * .95), r = 7000; sp.push(r * Math.sin(ph) * Math.cos(th), r * Math.cos(ph), r * Math.sin(ph) * Math.sin(th)); }
+sg.setAttribute('position', new THREE.Float32BufferAttribute(sp, 3)); const stars = new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xffffff, size: 2, sizeAttenuation: false, fog: false })); scene.add(stars);
+const pmrem = new THREE.PMREMGenerator(renderer);
+const bgBIM = gradientTex('#e8eef5', '#b9c6d6'), bgBlue = gradientTex('#071a33', '#0b2a4a'), bgNight = gradientTex('#02050c', '#0d1a33');
+const grid = new THREE.GridHelper(1600, 80, 0x2f6ea8, 0x173a5e); grid.position.set(CEN.x, GY + .02, CEN.z); grid.visible = false; scene.add(grid);
+
+/* =====================================================================================
+   BUILD PROJECT
+   ===================================================================================== */
+buildProject(api);
+// night floodlights around the permanent works (project may override with PROJECT.floodlights = [[x,y,z,tx,ty,tz], …])
+const spots = []; { const bb = new THREE.Box3(); ELS.filter(e => !e.temp).forEach(e => bb.union(e.box)); const c = bb.getCenter(new THREE.Vector3()), sz = bb.getSize(new THREE.Vector3()), r = Math.max(sz.x, sz.z) * .7 + 20;
+  const list = PROJECT.floodlights || [[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([a, b]) => [c.x + a * r, GY + 2, c.z + b * r, c.x, c.y, c.z]);
+  list.forEach(([x, y, z, a, b, d]) => { const l = new THREE.SpotLight(0xffd8a0, 0, r * 3, .5, .6, 1.2); l.position.set(x, y, z); l.target.position.set(a, b, d); scene.add(l, l.target); spots.push(l); }); api.spots = spots; }
+const STRUCT_DONE = ELS.filter(e => (PROJECT.structuralCats || []).includes(e.cat)).reduce((m, e) => Math.max(m, e.finish), 0);
+if (PROJECT.archAfterStructure && STRUCT_DONE) ELS.filter(e => ['arch', 'deco', 'facade', 'sculpture'].includes(e.cat)).forEach(e => { if (e.start <= STRUCT_DONE) { const d = STRUCT_DONE + DAY - e.start; e.start += d; e.finish += d; e.src += L2(' · เริ่มหลังโครงสร้างแล้วเสร็จ', ' · after structural completion'); } });
+const STEPS = PROJECT.steps.map(s => { const d = typeof s.d === 'function' ? s.d(Object.fromEntries(Object.keys(SDATES).map(k => [k, SDATES[k]]))) : s.d; return { d, dw: s.dw || '—', t: tx(s.t), b: (s.b || []).map(tx), t0: D(d) }; }).sort((a, b) => a.t0 - b.t0);
+
+/* =====================================================================================
+   4D STATE
+   ===================================================================================== */
+let MODE = 'real', NOW = D(QS.get('date') || PROJECT.initialDate || PROJECT.T0);
+function stateOf(e, t) { if (e.temp) { if (t < e.start) return 'plan'; if (t < e.finish) return 'wip'; if (e.rmE && t >= e.rmE) return 'gone'; if (e.rmS && t >= e.rmS) return 'rm'; return 'done'; } return t < e.start ? 'plan' : t < e.finish ? 'wip' : 'done'; }
+function setMat(e, mat) { e.obj.traverse(m => { if (m.isMesh) m.material = mat === 'base' ? m.userData.base : mat; }); }
+function ensureEdges(e) { if (e.edges) return; e.edges = []; e.obj.traverse(m => { if (m.isMesh && !m.isInstancedMesh && m.geometry.attributes.position.count < 60000) { const ln = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 28), LM.done); ln.visible = false; m.add(ln); e.edges.push(ln); } }); }
+const catMats = {}, catMat = c => catMats[c] || (catMats[c] = new THREE.MeshLambertMaterial({ color: CATS[c]?.c || '#ccc' }));
+const NO_WIP_TINT = ['finish', 'elec', 'mep', 'water', 'drain', 'arch', 'deco', 'facade', 'sculpture'];
+function applyLook(e, t) {
+  const st = stateOf(e, t); e.st = st; const phase = e.kind === 'cast' && st === 'wip' ? (t < e.cast ? 'rebar' : 'fresh') : '';
+  if (e.kind === 'grow') e.obj.scale.y = st === 'wip' ? clamp((t - e.start) / (e.finish - e.start), .02, 1) : 1;
+  const key = MODE + st + phase + (catHidden[e.cat] ? 'h' : ''); if (e.lookKey === key) return; e.lookKey = key;
+  if (e.edges) e.edges.forEach(l => l.visible = false);
+  if (catHidden[e.cat] || st === 'gone') { e.obj.visible = false; return; }
+  if (MODE === 'real') { if (st === 'plan') { e.obj.visible = false; return; } e.obj.visible = true;
+    if (st === 'wip' && !e.temp && !NO_WIP_TINT.includes(e.cat)) setMat(e, e.kind === 'cast' ? (phase === 'rebar' ? M.rebar : M.fresh) : e.kind === 'cable' ? M.cableWip : e.kind === 'grow' ? 'base' : M.wip); else setMat(e, 'base');
+  } else if (MODE === 'bim') { e.obj.visible = true; setMat(e, st === 'plan' ? M.ghost : e.temp ? M.bimTemp : st === 'wip' ? M.bimWip : catMat(e.cat)); }
+  else { if (st === 'plan' && e.temp) { e.obj.visible = false; return; } e.obj.visible = true; ensureEdges(e); setMat(e, M.blueFill); e.edges.forEach(l => { l.visible = true; l.material = st === 'plan' ? LM.plan : e.temp ? LM.temp : st === 'wip' ? LM.wip : LM.done; }); }
+}
+let playing = false;
+function updateCranes(dt) { for (const e of ELS) if (e.kind === 'crane' && e.obj.visible && e.obj.userData.slew) { if (playing || tour.on) e.obj.userData.slew.rotation.y += dt * .05; else if (!e.rotInit) { e.obj.userData.slew.rotation.y = R() * 6; e.rotInit = true; } } }
+function refresh() { for (const e of ELS) applyLook(e, NOW); updateProject(api, NOW, 0); applyLabels(); updateUI(); }
+
+/* =====================================================================================
+   THEMES
+   ===================================================================================== */
+let theme = 'day', isNight = false;
+function setSun(el, az) { const v = new THREE.Vector3().setFromSphericalCoords(1, THREE.MathUtils.degToRad(90 - el), THREE.MathUtils.degToRad(az)); sky.material.uniforms.sunPosition.value.copy(v); if (water) water.material.uniforms.sunDirection.value.copy(v).normalize(); sun.position.copy(v).multiplyScalar(700).add(sun.target.position); return v; }
+function envFromSky() { const sc = new THREE.Scene(), sk = new Sky(); sk.scale.setScalar(1000); sk.material.uniforms.sunPosition.value.copy(sky.material.uniforms.sunPosition.value); ['turbidity', 'rayleigh', 'mieCoefficient', 'mieDirectionalG'].forEach(k => sk.material.uniforms[k].value = sky.material.uniforms[k].value); sc.add(sk); if (scene.environment) scene.environment.dispose(); scene.environment = pmrem.fromScene(sc).texture; }
+function applyTheme(t) {
+  theme = t; isNight = t === 'night'; MODE = t === 'bim' ? 'bim' : t === 'blue' ? 'blue' : 'real'; const real = MODE === 'real';
+  document.body.dataset.ui = t === 'bim' ? 'light' : 'dark'; document.querySelectorAll('#themes button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  sky.visible = real && !isNight; stars.visible = isNight; if (water) { water.visible = real; flatWater.visible = !real; }
+  city.visible = MODE !== 'blue'; trees.visible = real; cars.visible = real; groundMeshes.forEach(g => g.visible = MODE !== 'blue'); grid.visible = MODE === 'blue';
+  gCtx.children.forEach(o => { if (o.userData.bank || o.userData.ctx) o.visible = MODE !== 'blue'; });
+  bldMat.emissiveIntensity = isNight ? 1.1 : 0; bldMat.map = MODE === 'bim' ? null : winDay; bldMat.color.set(MODE === 'bim' ? 0xf1f3f5 : 0xffffff); bldMat.transparent = MODE === 'bim'; bldMat.opacity = MODE === 'bim' ? .55 : 1; bldMat.needsUpdate = true;
+  groundMat.color.set(MODE === 'bim' ? 0xdfe6ee : 0xffffff); groundMat.map = MODE === 'bim' ? null : tGrass; groundMat.needsUpdate = true;
+  M.lampHead.emissive.set(isNight ? 0xffe9a8 : 0); M.lampHead.emissiveIntensity = 3; M.avi.emissive.set(isNight ? 0xff2020 : 0x330000); M.avi.emissiveIntensity = 4;
+  M.cable.emissive.set(isNight ? 0x6b5a36 : 0); M.gold.emissive.set(isNight ? 0x7a5200 : 0);
+  spots.forEach(l => l.intensity = isNight ? (PROJECT.floodIntensity || 350) : 0);
+  bloom.enabled = isNight || MODE === 'blue'; bloom.strength = isNight ? .55 : .45; bloom.threshold = isNight ? .9 : .8;
+  if (water) water.material.uniforms.sunColor.value.set({ day: 0x8c8676, sunset: 0xffa060, night: 0x1a2030 }[t] || 0x888888);
+  const u = sky.material.uniforms;
+  if (t === 'day') { u.turbidity.value = 5; u.rayleigh.value = 1.2; u.mieCoefficient.value = .004; u.mieDirectionalG.value = .8; setSun(48, 140); renderer.toneMappingExposure = .5; sun.color.set(0xfff5e6); sun.intensity = 2.6; hemi.intensity = .55; hemi.color.set(0xdfefff); scene.fog = new THREE.Fog(0xc6d4de, 900, 3600); scene.background = null; envFromSky(); }
+  if (t === 'sunset') { u.turbidity.value = 9; u.rayleigh.value = 2.6; u.mieCoefficient.value = .009; u.mieDirectionalG.value = .9; setSun(4.5, 248); renderer.toneMappingExposure = .45; sun.color.set(0xffb070); sun.intensity = 2.2; hemi.intensity = .35; hemi.color.set(0xffd2b0); scene.fog = new THREE.Fog(0xcf9a76, 700, 3200); scene.background = null; envFromSky(); }
+  if (t === 'night') { setSun(-20, 250); const mv = new THREE.Vector3(-.3, .8, .4).normalize(); sun.position.copy(mv).multiplyScalar(700).add(sun.target.position); if (water) water.material.uniforms.sunDirection.value.copy(mv); renderer.toneMappingExposure = .95; sun.color.set(0x8fa8ff); sun.intensity = .25; hemi.intensity = .3; hemi.color.set(0x7088c0); scene.fog = new THREE.Fog(0x0a1222, 400, 2600); scene.background = bgNight; scene.environment = null; }
+  if (t === 'bim') { renderer.toneMappingExposure = 1; sun.color.set(0xffffff); sun.intensity = 1.8; setSun(55, 130); hemi.intensity = 1; hemi.color.set(0xffffff); scene.fog = null; scene.background = bgBIM; scene.environment = null; }
+  if (t === 'blue') { renderer.toneMappingExposure = 1; sun.intensity = .6; hemi.intensity = .6; scene.fog = null; scene.background = bgBlue; scene.environment = null; }
+  if (bed) bed.material.color.set(real ? 0x4a4436 : MODE === 'bim' ? 0xa5b7c8 : 0x0b2a4a);
+  for (const e of ELS) e.lookKey = null; refresh(); updateUrl();
+}
+
+/* =====================================================================================
+   SOUNDSCAPE (procedural Web Audio – no audio files)
+   ===================================================================================== */
+class Sound {
+  constructor() { this.on = false; this.music = false; this.next = { clank: 0, bird: 0, beep: 0, horn: 0, note: 0, pump: 0 }; }
+  init() { const c = this.ctx = new (window.AudioContext || window.webkitAudioContext)(); this.master = c.createGain(); this.master.gain.value = 0; this.master.connect(c.destination);
+    this.verb = c.createConvolver(); this.verb.buffer = this.impulse(3); const vg = c.createGain(); vg.gain.value = .4; this.verb.connect(vg).connect(this.master);
+    const brown = this.noise('brown'), pink = this.noise('pink'), white = this.noise('white');
+    this.river = this.loop(brown, 'lowpass', 420, 0); const lfo = c.createOscillator(), lg = c.createGain(); lfo.frequency.value = .09; lg.gain.value = 160; lfo.connect(lg).connect(this.river.f.frequency); lfo.start();
+    this.wind = this.loop(pink, 'bandpass', 700, 0, .6); const l2 = c.createOscillator(), g2 = c.createGain(); l2.frequency.value = .05; g2.gain.value = 350; l2.connect(g2).connect(this.wind.f.frequency); l2.start();
+    this.city = this.loop(brown, 'lowpass', 160, 0);
+    this.gen = c.createGain(); this.gen.gain.value = 0; const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 220; lp.connect(this.gen).connect(this.master);
+    [49, 98.5, 147].forEach((f, i) => { const o = c.createOscillator(); o.type = i ? 'square' : 'sawtooth'; o.frequency.value = f; const g = c.createGain(); g.gain.value = i ? .08 : .35; o.connect(g).connect(lp); o.start(); });
+    this.crk = c.createGain(); this.crk.gain.value = 0; const co = c.createOscillator(); co.frequency.value = 4300; const am = c.createGain(); am.gain.value = 0; const ao = c.createOscillator(); ao.type = 'square'; ao.frequency.value = 28; const ag = c.createGain(); ag.gain.value = .5; ao.connect(ag).connect(am.gain); co.connect(am).connect(this.crk).connect(this.master); co.start(); ao.start();
+    this.drn = c.createGain(); this.drn.gain.value = 0; const dbp = c.createBiquadFilter(); dbp.type = 'bandpass'; dbp.frequency.value = 520; dbp.Q.value = .7; dbp.connect(this.drn).connect(this.master);
+    this.drnOsc = [168, 171, 252].map(f => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; const g = c.createGain(); g.gain.value = .25; o.connect(g).connect(dbp); o.start(); return o; });
+    this.pad = c.createGain(); this.pad.gain.value = 0; this.pad.connect(this.verb); this.pad.connect(this.master);
+    this.padOsc = [130.81, 196.0, 261.6].map(f => { const o = c.createOscillator(); o.type = 'sine'; o.frequency.value = f; const g = c.createGain(); g.gain.value = .12; o.connect(g).connect(this.pad); o.start(); return o; }); }
+  noise(type) { const c = this.ctx, n = c.sampleRate * 4, b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0); let last = 0, b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+    for (let i = 0; i < n; i++) { const w = Math.random() * 2 - 1; if (type === 'white') d[i] = w * .4; else if (type === 'brown') { last = (last + .02 * w) / 1.02; d[i] = last * 3.5; } else { b0 = .99886 * b0 + w * .0555179; b1 = .99332 * b1 + w * .0750759; b2 = .969 * b2 + w * .153852; b3 = .8665 * b3 + w * .3104856; b4 = .55 * b4 + w * .5329522; b5 = -.7616 * b5 - w * .016898; d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * .5362) * .11; b6 = w * .115926; } } return b; }
+  impulse(sec) { const c = this.ctx, n = c.sampleRate * sec, b = c.createBuffer(2, n, c.sampleRate); for (let ch = 0; ch < 2; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 2.5); } return b; }
+  loop(buf, type, f, gain, q = .7) { const c = this.ctx, s = c.createBufferSource(); s.buffer = buf; s.loop = true; const fl = c.createBiquadFilter(); fl.type = type; fl.frequency.value = f; fl.Q.value = q; const g = c.createGain(); g.gain.value = gain; s.connect(fl).connect(g).connect(this.master); s.start(); return { s, f: fl, g }; }
+  env(node, t, a, peak, d) { node.gain.setValueAtTime(.0001, t); node.gain.exponentialRampToValueAtTime(peak, t + a); node.gain.exponentialRampToValueAtTime(.0001, t + a + d); }
+  clank(v) { const c = this.ctx, t = c.currentTime, o = c.createOscillator(), g = c.createGain(); o.type = 'triangle'; o.frequency.value = 700 + Math.random() * 900; o.connect(g); g.connect(this.master); g.connect(this.verb); this.env(g, t, .002, .25 * v, .35); o.start(t); o.stop(t + .5); }
+  thump(v) { const c = this.ctx, t = c.currentTime, o = c.createOscillator(), g = c.createGain(); o.frequency.setValueAtTime(90, t); o.frequency.exponentialRampToValueAtTime(40, t + .2); o.connect(g).connect(this.master); this.env(g, t, .005, .5 * v, .25); o.start(t); o.stop(t + .35); }
+  beep(v) { const c = this.ctx; for (let i = 0; i < 3; i++) { const t = c.currentTime + i * .35, o = c.createOscillator(), g = c.createGain(); o.type = 'square'; o.frequency.value = 1250; o.connect(g).connect(this.master); this.env(g, t, .01, .05 * v, .18); o.start(t); o.stop(t + .25); } }
+  bird(v) { const c = this.ctx, n = 2 + Math.random() * 4 | 0, base = 2600 + Math.random() * 1800; for (let i = 0; i < n; i++) { const t = c.currentTime + i * .13, o = c.createOscillator(), g = c.createGain(); o.frequency.setValueAtTime(base, t); o.frequency.exponentialRampToValueAtTime(base * 1.45, t + .05); o.frequency.exponentialRampToValueAtTime(base * .9, t + .1); o.connect(g); g.connect(this.master); this.env(g, t, .01, .06 * v, .09); o.start(t); o.stop(t + .14); } }
+  horn(v) { const c = this.ctx, t = c.currentTime, g = c.createGain(), f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 700; f.connect(g); g.connect(this.master); [110, 138.6].forEach(fr => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = fr; o.connect(f); o.start(t); o.stop(t + 2); }); g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(.12 * v, t + .15); g.gain.setValueAtTime(.12 * v, t + 1.5); g.gain.linearRampToValueAtTime(.0001, t + 1.9); }
+  pluck(freq, v) { const c = this.ctx, t = c.currentTime + .02, g = c.createGain(); g.connect(this.master); g.connect(this.verb); [[1, 'triangle', .5], [2, 'sine', .25], [3.01, 'sine', .1]].forEach(([m, ty, a]) => { const o = c.createOscillator(); o.type = ty; o.frequency.value = freq * m; const og = c.createGain(); og.gain.value = a; o.connect(og).connect(g); o.start(t); o.stop(t + 2.2); }); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.18 * v, t + .008); g.gain.exponentialRampToValueAtTime(.0001, t + 2); }
+  set(on) { if (!this.ctx) this.init(); this.on = on; if (on) this.ctx.resume(); this.master.gain.setTargetAtTime(on ? .9 : 0, this.ctx.currentTime, .3); }
+  update(dt, s) { if (!this.ctx || !this.on) return; const now = this.ctx.currentTime, k = .4, near = clamp(1 - s.dist / 900, 0, 1), alt = clamp(s.alt / 150, 0, 1);
+    this.river.g.gain.setTargetAtTime(s.water && s.real ? .55 * clamp(1 - s.alt / 260, .15, 1) : 0, now, k); this.wind.g.gain.setTargetAtTime(.05 + .35 * alt + (s.drone ? .1 : 0), now, k);
+    this.city.g.gain.setTargetAtTime(.25 + (s.opened ? .25 : 0), now, k); const act = s.active ? near : 0; this.gen.gain.setTargetAtTime(.1 * act, now, k);
+    this.crk.gain.setTargetAtTime(s.night ? .022 : 0, now, 1); this.drn.gain.setTargetAtTime(s.drone ? .16 : 0, now, .2); this.drnOsc.forEach((o, i) => o.frequency.setTargetAtTime([168, 171, 252][i] * (1 + clamp(s.speed / 120, 0, .6)), now, .3));
+    this.pad.gain.setTargetAtTime(this.music ? .05 : 0, now, 1.5);
+    if (act > .05 && now > this.next.clank) { this.clank(act); this.next.clank = now + .25 + Math.random() * 1.6 / (.4 + act); }
+    if (s.casting && act > .05 && now > this.next.pump) { this.thump(act); this.next.pump = now + .62; }
+    if (act > .05 && now > this.next.beep) { this.beep(act); this.next.beep = now + 9 + Math.random() * 14; }
+    if (!s.night && s.real && now > this.next.bird) { this.bird(.8 + Math.random() * .4); this.next.bird = now + 2 + Math.random() * 7; }
+    if (s.real && now > this.next.horn) { if (this.next.horn) this.horn(.8); this.next.horn = now + 25 + Math.random() * 40; }
+    if (this.music && now > this.next.note) { const sc = [261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.26]; this.mi = clamp((this.mi ?? 3) + (Math.random() * 5 | 0) - 2, 0, 7); this.pluck(sc[this.mi], 1); if (Math.random() < .3) this.pluck(sc[clamp(this.mi - 2, 0, 7)] / 2, .7); this.next.note = now + [.42, .42, .84, .21][Math.random() * 4 | 0]; } }
+}
+const snd = new Sound();
+
+/* =====================================================================================
+   CAMERA PRESETS, DRONE TOUR, FLY MODE
+   ===================================================================================== */
+const VIEWS = {}; for (const [k, v] of Object.entries(PROJECT.views)) VIEWS[k] = [v.pos, v.target];
+const $ = id => document.getElementById(id);
+$('view').innerHTML = Object.entries(PROJECT.views).map(([k, v]) => `<option value="${k}">${tx(v.t)}</option>`).join('');
+let camAnim = null;
+function goView(name, dur = 1.6) { const v = VIEWS[name]; if (v) camAnim = { p0: camera.position.clone(), t0: controls.target.clone(), p1: new THREE.Vector3(...v[0]), t1: new THREE.Vector3(...v[1]), u: 0, dur }; }
+const TOUR = PROJECT.tour.map(w => [w.pos, w.target, tx(w.t), tx(w.s)]);
+const tour = { on: false, u: 0, dur: Math.max(40, TOUR.length * 9), posC: new THREE.CatmullRomCurve3(TOUR.map(w => new THREE.Vector3(...w[0])), false, 'centripetal'), tgtC: new THREE.CatmullRomCurve3(TOUR.map(w => new THREE.Vector3(...w[1])), false, 'centripetal'), bat: 100, last: new THREE.Vector3(), idx: -1 };
+const fly = { on: false, keys: {}, yaw: 0, pitch: 0, drag: null };
+const capEl = $('caption'), hud = $('hud');
+function startTour() { stopFly(); tour.on = true; tour.u = 0; tour.idx = -1; tour.bat = 100; controls.enabled = false; hud.style.display = 'block'; document.body.classList.add('noui'); $('btnTour').classList.add('on'); if (!snd.on) toggleSound(true); }
+function stopTour() { if (!tour.on) return; tour.on = false; controls.enabled = true; hud.style.display = 'none'; capEl.style.display = 'none'; document.body.classList.remove('noui'); $('btnTour').classList.remove('on'); controls.target.copy(tour.tgtC.getPoint(Math.min(tour.u, .999))); }
+function startFly() { stopTour(); fly.on = true; controls.enabled = false; const d = new THREE.Vector3(); camera.getWorldDirection(d); fly.yaw = Math.atan2(-d.x, -d.z); fly.pitch = Math.asin(d.y); hud.style.display = 'block'; $('flyhelp').style.display = 'block'; $('btnFly').classList.add('on'); if (!snd.on) toggleSound(true); }
+function stopFly() { if (!fly.on) return; fly.on = false; controls.enabled = true; hud.style.display = 'none'; $('flyhelp').style.display = 'none'; $('btnFly').classList.remove('on'); const d = new THREE.Vector3(); camera.getWorldDirection(d); controls.target.copy(camera.position).addScaledVector(d, 60); }
+const isField = e => e.target.closest && e.target.closest('input,select,textarea');
+addEventListener('keydown', e => { fly.keys[e.code] = true; if (e.code === 'Escape') { stopTour(); stopFly(); } if (isField(e)) return;
+  if (e.code === 'KeyH') document.body.classList.toggle('noui'); if (e.code === 'Space' && !fly.on) { e.preventDefault(); togglePlay(); }
+  if (e.code === 'KeyL' && !fly.on) setAllLabels(!LBL.all); if (e.key === '[') $('btnL').click(); if (e.key === ']') $('btnR').click(); });
+addEventListener('keyup', e => { fly.keys[e.code] = false; });
+canvas.addEventListener('pointerdown', e => { if (fly.on) fly.drag = [e.clientX, e.clientY]; });
+addEventListener('pointerup', () => fly.drag = null);
+addEventListener('pointermove', e => { if (fly.on && fly.drag) { fly.yaw -= (e.clientX - fly.drag[0]) * .004; fly.pitch = clamp(fly.pitch - (e.clientY - fly.drag[1]) * .004, -1.4, 1.4); fly.drag = [e.clientX, e.clientY]; } });
+function hudUpdate(spd) { const p = camera.position, g = PROJECT.geo || { lat: 0, lon: 0 }, lat = g.lat + (-p.z) / 111000, lon = g.lon + p.x / (111000 * Math.cos(g.lat * Math.PI / 180));
+  $('hudL').innerHTML = `<span class="rec">● REC</span> 4K 30fps<br>ALT ${(p.y - GY).toFixed(1)} m<br>H.S ${(spd * 3.6).toFixed(1)} km/h<br>D ${p.distanceTo(CEN).toFixed(0)} m`;
+  $('hudR').innerHTML = `BAT ${tour.bat.toFixed(0)}%<br>GPS ▮▮▮▮ 18<br>${lat.toFixed(5)}°N<br>${lon.toFixed(5)}°E (approx.)`; $('hudB').innerHTML = `4D ${fmtDate(NOW)} · ${$('stepName').textContent}`; }
+
+/* =====================================================================================
+   UI – timeline, tabs, KPIs, schedule import, labels, panels, picking
+   ===================================================================================== */
+const slider = $('slider'), t2v = t => (t - T0) / (T1 - T0) * 1000, v2t = v => T0 + v / 1000 * (T1 - T0);
+(function ticks() { const tk = $('ticks'), months = (T1 - T0) / (30 * DAY), step = months > 30 ? 12 : months > 12 ? 6 : 3; const s = new Date(T0); s.setDate(1);
+  for (let d = new Date(s.getFullYear(), Math.ceil(s.getMonth() / step) * step, 1); d.getTime() <= T1; d.setMonth(d.getMonth() + step)) { if (d.getTime() < T0) continue; const e = document.createElement('div'); e.style.left = t2v(d.getTime()) / 10 + '%'; e.textContent = d.toLocaleDateString(LANG === 'en' ? 'en-GB' : 'th-TH', { month: 'short', year: LANG === 'en' ? 'numeric' : '2-digit' }); tk.appendChild(e); }
+  (PROJECT.milestones || []).forEach(([d, n]) => { const e = document.createElement('div'); e.className = 'ms'; e.style.left = t2v(D(typeof d === 'function' ? d(SDATES) : d)) / 10 + '%'; e.textContent = '◆ ' + tx(n); tk.appendChild(e); }); })();
+function setNow(t, fromSlider) { NOW = clamp(t, T0, T1); if (!fromSlider) slider.value = t2v(NOW); refresh(); }
+slider.addEventListener('input', () => setNow(v2t(+slider.value), true));
+function togglePlay() { playing = !playing; if (playing && NOW >= T1 - DAY) setNow(T0); $('btnPlay').textContent = tx(playing ? UI.pause : UI.play); $('btnPlay').classList.toggle('on', playing); }
+$('btnPlay').textContent = tx(UI.play); $('btnPlay').onclick = togglePlay;
+document.querySelectorAll('#themes button').forEach(b => b.onclick = () => applyTheme(b.dataset.t));
+$('view').onchange = e => goView(e.target.value);
+$('btnTour').onclick = () => tour.on ? stopTour() : startTour(); $('btnFly').onclick = () => fly.on ? stopFly() : startFly();
+function toggleSound(force) { const on = force ?? !snd.on; snd.set(on); $('btnSound').innerHTML = (on ? '🔊' : '🔇') + `<span class="lbl"> ${L2('เสียง', 'Sound')}</span>`; $('btnSound').classList.toggle('on', on); }
+$('btnSound').onclick = () => toggleSound(); $('btnMusic').onclick = () => { if (!snd.on) toggleSound(true); snd.music = !snd.music; $('btnMusic').classList.toggle('on', snd.music); };
+$('btnUI').onclick = () => document.body.classList.toggle('noui'); $('mobileToggle').onclick = () => $('left').classList.toggle('show');
+document.querySelectorAll('#langSeg button').forEach(b => { b.classList.toggle('on', b.dataset.l === LANG); b.onclick = () => { if (b.dataset.l === LANG) return; store.set('lang', b.dataset.l); const u = new URL(location.href); u.searchParams.set('lang', b.dataset.l); u.searchParams.set('date', fmtISO(NOW)); u.searchParams.set('theme', theme); location.href = u.toString(); }; });
+// labels
+function setAllLabels(v) { LBL.all = v; saveLBL(); applyLabels(); if (tab === 'model') renderTab(); }
+$('btnLbl').onclick = () => setAllLabels(!LBL.all);
+// panels
+function setPanel(side, show) { document.body.classList.toggle(side === 'L' ? 'hideL' : 'hideR', !show); $('btn' + side).classList.toggle('on', show); const u = store.get('ui', {}); u[side] = show; store.set('ui', u); }
+$('btnL').onclick = () => setPanel('L', document.body.classList.contains('hideL')); $('btnR').onclick = () => setPanel('R', document.body.classList.contains('hideR'));
+$('closeL').onclick = () => setPanel('L', false); $('closeR').onclick = () => setPanel('R', false);
+{ const u = store.get('ui', {}); if (u.L === false) setPanel('L', false); if (u.R === false) setPanel('R', false); } if (QS.get('panels') === '0') { setPanel('L', false); setPanel('R', false); }
+// screenshot / GLB
+$('btnShot').onclick = () => { composer.render(); const a = document.createElement('a'); a.href = renderer.domElement.toDataURL('image/png'); a.download = `${PROJECT.id}_4D_${fmtISO(NOW)}_${theme}.png`; a.click(); };
+$('btnGlb').onclick = () => { const root = new THREE.Group(); root.name = PROJECT.id + '_' + fmtISO(NOW);
+  for (const e of ELS) if (e.obj.visible && !e.temp) { const saved = []; e.obj.traverse(m => { saved.push([m, m.userData]); m.userData = {}; }); const c = e.obj.clone(true); saved.forEach(([m, u]) => m.userData = u);
+    const orig = []; e.obj.traverse(m => { if (m.isMesh) orig.push(m); }); let i = 0; const drop = []; c.traverse(m => { if (m.isMesh) { const o = orig[i++]; m.material = (o && o.userData.base) || m.material; } if (m.isLineSegments) drop.push(m); }); drop.forEach(m => m.removeFromParent());
+    c.name = e.id; c.userData = { id: e.id, name: e.name, category: CATS[e.cat]?.th, start: fmtISO(e.start), finish: fmtISO(e.finish), drawing: e.dwg, source: e.src }; root.add(c); }
+  new GLTFExporter().parse(root, glb => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([glb], { type: 'model/gltf-binary' })); a.download = `${PROJECT.id}_BIM_${fmtISO(NOW)}.glb`; a.click(); }, err => alert(err), { binary: true }); };
+
+/* ---- schedule import (PDF printed from MS Project / MS Project XML / CSV / JSON) ---- */
+const SCHED_IO = (() => {
+  const MON = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+  function parseDate(s) { if (!s) return null; s = String(s).trim(); let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/); if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+    m = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/); if (m) { const y = m[3].length === 2 ? 2000 + +m[3] : +m[3]; const us = PROJECT.schedule.dateOrder !== 'dmy'; const mo = us ? m[1] : m[2], da = us ? m[2] : m[1]; return `${y}-${String(mo).padStart(2, '0')}-${String(da).padStart(2, '0')}`; }
+    m = s.match(/(\d{1,2})[-\s]([A-Z][a-z]{2})[-\s](\d{2,4})/); if (m && MON[m[2]] !== undefined) { const y = m[3].length === 2 ? 2000 + +m[3] : +m[3]; return `${y}-${String(MON[m[2]] + 1).padStart(2, '0')}-${String(m[1]).padStart(2, '0')}`; } return null; }
+  async function fromPDF(buf, progress) { const doc = await window.pdfjsLib.getDocument({ data: buf }).promise, toks = []; for (let p = 1; p <= doc.numPages; p++) { const tc = await (await doc.getPage(p)).getTextContent(); tc.items.forEach(i => { const s = i.str.trim(); if (s) toks.push(s); }); if (progress) progress(p / doc.numPages); } return fromTokens(toks); }
+  function fromTokens(toks) { const dur = /^\d+(\.\d+)?\s*e?(days?|d|wks?|w|hrs?|h|mons?|mo|วัน)\??$/i, dt = /(\d{1,2}\/\d{1,2}\/\d{2,4})/, tasks = new Map();
+    for (let i = 0; i < toks.length - 4; i++) { if (!/^\d{1,5}$/.test(toks[i])) continue; let j = i + 1, name = toks[j]; if (!name || /^\d+([,.]\d+)*$/.test(name) || dt.test(name) || dur.test(name)) continue; j++;
+      if (!dur.test(toks[j]) && toks[j + 1] && dur.test(toks[j + 1]) && !dt.test(toks[j])) { name += ' ' + toks[j]; j++; } if (!dur.test(toks[j])) continue;
+      const s = (toks[j + 1] || '').match(dt), f = (toks[j + 2] || '').match(dt); if (!s || !f) continue; const id = +toks[i]; if (!tasks.has(id)) tasks.set(id, { id, name: name.trim(), start: parseDate(s[1]), finish: parseDate(f[1]) }); i = j + 2; }
+    return [...tasks.values()].sort((a, b) => a.id - b.id); }
+  function fromXML(text) { const x = new DOMParser().parseFromString(text, 'application/xml'), out = []; x.querySelectorAll('Tasks > Task').forEach(t => { const g = n => t.querySelector(':scope > ' + n)?.textContent; if (!g('Name')) return; out.push({ id: +g('ID'), name: g('Name'), start: parseDate(g('Start')), finish: parseDate(g('Finish')), level: +g('OutlineLevel') }); }); return out.sort((a, b) => a.id - b.id); }
+  function fromCSV(text) { const sep = (text.split(/\r?\n/)[0].match(/[;\t]/) || [','])[0];
+    const splitRow = r => { const out = []; let cur = '', q = false; for (let i = 0; i < r.length; i++) { const c = r[i]; if (q) { if (c === '"' && r[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; } else if (c === '"') q = true; else if (c === sep) { out.push(cur.trim()); cur = ''; } else cur += c; } out.push(cur.trim()); return out; };
+    const rows = text.replace(/^﻿/, '').split(/\r?\n/).filter(r => r.trim()).map(splitRow), h = rows[0].map(c => c.toLowerCase()), ci = k => h.findIndex(c => k.some(x => c.includes(x)));
+    const iI = ci(['id']), iN = ci(['task name', 'name', 'ชื่อ']), iS = ci(['start', 'เริ่ม']), iF = ci(['finish', 'end', 'เสร็จ']);
+    return rows.slice(1).map((r, n) => ({ id: iI >= 0 ? +r[iI] || n + 1 : n + 1, name: r[iN], start: parseDate(r[iS]), finish: parseDate(r[iF]) })).filter(t => t.name && t.start && t.finish); }
+  function toSchedule(tasks) {   // generic: section rules set context, key rules map task → schedule key
+    const S = { dates: {}, matched: 0, tasks: tasks.length }, ctx = {};
+    for (const t of tasks) { const n = t.name.replace(/\s+/g, ' ').trim(); let m;
+      for (const sr of PROJECT.schedule.sections || []) if ((m = n.match(sr.re))) Object.assign(ctx, sr.set(m, t));
+      for (const r of PROJECT.schedule.rules || []) if ((m = n.match(r.re))) { const k = r.key(m, ctx, t); if (k) { if (r.mode === 'finish') S.dates[k] = [t.finish, t.finish]; else S.dates[k] = [t.start, t.finish]; S.matched++; } break; } }
+    return S; }
+  return { fromPDF, fromTokens, fromXML, fromCSV, toSchedule, parseDate };
+})();
+$('schedSrc').textContent = L2('แผนงาน: ', 'Programme: ') + (SCHED.user ? SCHED.source + L2(' (อัปโหลด ', ' (uploaded ') + (SCHED.imported || '') + ')' : SCHED.source + L2(' – ค่าเริ่มต้น', ' – default'));
+let pendingSched = null; const openModal = v => { $('modal').style.display = $('modalBack').style.display = v ? 'block' : 'none'; };
+$('btnImport').onclick = () => { openModal(true); $('impStatus').textContent = ''; $('mApply').disabled = true; pendingSched = null; };
+$('mClose').onclick = $('modalBack').onclick = () => openModal(false); $('drop').onclick = () => $('impFile').click();
+['dragover', 'dragenter'].forEach(ev => $('drop').addEventListener(ev, e => { e.preventDefault(); $('drop').classList.add('over'); }));
+['dragleave', 'drop'].forEach(ev => $('drop').addEventListener(ev, e => { e.preventDefault(); $('drop').classList.remove('over'); }));
+$('drop').addEventListener('drop', e => { if (e.dataTransfer.files[0]) importFile(e.dataTransfer.files[0]); }); $('impFile').onchange = e => { if (e.target.files[0]) importFile(e.target.files[0]); e.target.value = ''; };
+async function loadPdfJs() { if (window.pdfjsLib) return; await new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'; sc.onload = res; sc.onerror = () => rej(new Error(L2('โหลด pdf.js ไม่สำเร็จ (ต้องเชื่อมต่ออินเทอร์เน็ต)', 'Could not load pdf.js (internet required)'))); document.head.appendChild(sc); }); window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; }
+async function importFile(f) {
+  const st = $('impStatus'), ext = f.name.split('.').pop().toLowerCase(); pendingSched = null; $('mApply').disabled = true; st.innerHTML = `${L2('กำลังอ่าน', 'Reading')} <b>${f.name}</b> …`;
+  try { let tasks, S;
+    if (ext === 'mpp') { st.innerHTML = L2('<span class="bad">ไฟล์ .mpp เบราว์เซอร์อ่านโดยตรงไม่ได้</span>\nMS Project ▸ Save As ▸ XML หรือ Print ▸ PDF แล้วอัปโหลด หรือใช้ tools/mpp2json.py', '<span class="bad">Browsers cannot read .mpp directly.</span>\nMS Project ▸ Save As ▸ XML or Print ▸ PDF and upload that, or use tools/mpp2json.py'); return; }
+    if (ext === 'pdf') { await loadPdfJs(); tasks = await SCHED_IO.fromPDF(new Uint8Array(await f.arrayBuffer()), p => st.innerHTML = `PDF … ${(p * 100).toFixed(0)}%`); }
+    else if (ext === 'xml') tasks = SCHED_IO.fromXML(await f.text()); else if (ext === 'csv' || ext === 'txt') tasks = SCHED_IO.fromCSV(await f.text());
+    else if (ext === 'json') { const j = JSON.parse(await f.text()); if (j.dates) S = j; else tasks = j.tasks || j; } else throw new Error(L2('ไม่รองรับไฟล์ .', 'Unsupported file .') + ext);
+    if (!S) S = SCHED_IO.toSchedule(tasks); S.source = ext === 'json' && S.source ? S.source : f.name; S.imported = fmtISO(Date.now());
+    const keys = Object.keys(PROJECT.schedule.dates), known = keys.filter(k => S.dates[k]).length, changed = keys.filter(k => S.dates[k] && (S.dates[k][0] !== PROJECT.schedule.dates[k][0] || S.dates[k][1] !== PROJECT.schedule.dates[k][1]));
+    if (!known) throw new Error(L2('ไม่พบงานที่ตรงกับแบบจำลองในไฟล์นี้ – ตรวจสอบชื่องาน (schedule.rules)', 'No tasks matched the model – check task names against schedule.rules'));
+    st.innerHTML = `<span class="ok">✔ ${L2('อ่านได้', 'Read')} ${S.tasks ?? '—'} tasks · ${L2('จับคู่กับแบบจำลอง', 'matched')} ${known}/${keys.length}</span>\n${L2('วันที่เปลี่ยนจากแผนเดิม', 'Dates changed')}: ${changed.length}${changed.length ? ' (' + changed.slice(0, 10).join(', ') + (changed.length > 10 ? ' …' : '') + ')' : ''}` + (known < keys.length ? `\n<span class="bad">${L2('รายการที่ไม่พบในไฟล์จะใช้วันที่เดิม', 'Keys missing from the file keep their default dates')}</span>` : '');
+    pendingSched = S; $('mApply').disabled = false;
+  } catch (err) { st.innerHTML = `<span class="bad">✖ ${err.message || err}</span>`; } }
+$('mApply').onclick = () => { if (!pendingSched) return; store.set('schedule', pendingSched); location.reload(); };
+$('mReset').onclick = () => { store.del('schedule'); location.reload(); };
+$('mExport').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify({ source: SCHED.source, dates: SDATES }, null, 1)], { type: 'application/json' })); a.download = 'schedule.json'; a.click(); };
+
+/* ---- tabs ---- */
+let tab = QS.get('tab') || 'gantt';
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { tab = b.dataset.tab; document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b)); renderTab(); });
+const GROUPS = []; { const m = new Map(); for (const e of ELS) { if (!m.has(e.grp)) { const g = { n: e.grp, a: Infinity, b: 0, as: false, els: [] }; m.set(e.grp, g); GROUPS.push(g); } const g = m.get(e.grp); g.a = Math.min(g.a, e.start); g.b = Math.max(g.b, e.temp ? (e.rmE || e.finish) : e.finish); g.els.push(e); if (/Assumed|สมมติ/.test(e.src)) g.as = true; } GROUPS.sort((x, y) => x.a - y.a); }
+function renderTab() {
+  const tb = $('tabbody');
+  if (tab === 'gantt') {
+    tb.innerHTML = `<div class="mut" style="margin-bottom:6px">${L2('แผนงาน 4D (คลิกแถวเพื่อไปวันเริ่มงาน)', '4D programme (click a row to jump to its start)')} · <span class="pill" style="background:var(--acc2);color:#111">${SCHED.source}</span> <span class="pill" style="background:#6c7a90;color:#111">${L2('สมมติฐาน', 'Assumed')}</span></div><div id="gwrap" style="position:relative"></div>` +
+      (PROJECT.cycle ? `<h3>${tx(PROJECT.cycle.t)}</h3><table class="cyc">${PROJECT.cycle.rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]} ${L2('วัน', r[1] > 1 ? 'days' : 'day')}</td><td class="mut">${r[2] || ''}</td></tr>`).join('')}</table>` : '');
+    $('gwrap').innerHTML = GROUPS.map((g, i) => `<div class="grow" data-i="${i}" title="${g.n}: ${fmtDate(g.a)} – ${fmtDate(g.b)}"><div class="gl">${g.n}</div><div class="gt"><div class="gb ${g.as ? 'as' : ''}" style="left:${t2v(g.a) / 10}%;width:${Math.max(.6, (t2v(g.b) - t2v(g.a)) / 10)}%"><div class="pg"></div></div></div></div>`).join('') + '<div id="gnow"></div>';
+    tb.querySelectorAll('.grow').forEach(r => r.onclick = () => { const g = GROUPS[+r.dataset.i]; setNow(g.a + DAY); focusOn(g.els); });
+  } else if (tab === 'ms') {
+    tb.innerHTML = STEPS.map((s, i) => `<div class="ms-step" data-i="${i}"><span class="d">${fmtDate(s.t0)} · ${s.dw}</span><b>${i + 1}. ${s.t}</b><ul>${s.b.map(x => `<li>${x}</li>`).join('')}</ul></div>`).join('') + tx(PROJECT.hse || '');
+    tb.querySelectorAll('.ms-step').forEach(r => r.onclick = () => setNow(STEPS[+r.dataset.i].t0 + 3 * DAY));
+  } else if (tab === 'model') {
+    const grps = {}; for (const k in CATS) (grps[CATS[k].grp] ||= []).push(k);
+    const lg = (PROJECT.labelGroups || []).concat([['struct', ['โครงสร้าง', 'Structure']]]);
+    tb.innerHTML = `<h3>${L2('ข้อความกำกับโมเดล', 'Model annotations')}</h3><div class="cat"><label><input type="checkbox" id="chkLblAll" ${LBL.all ? 'checked' : ''}> <b>${L2('แสดงข้อความกำกับ (ทั้งหมด)', 'Show annotations (all)')}</b></label><span class="mut">L</span></div>
+      <div style="display:flex;gap:6px;margin:4px 0 6px"><button id="lblOn">${L2('เลือกทั้งหมด', 'Select all')}</button><button id="lblNone">${L2('ไม่เลือกเลย', 'Select none')}</button></div>` +
+      lg.map(([g, gn]) => { const ls = LABELS.filter(l => l.grp === g); if (!ls.length) return ''; return `<div class="mut" style="font-size:11px;margin-top:4px">${tx(gn)}</div>` + ls.map(l => `<div class="cat" style="padding-left:10px"><i style="background:${l.col}"></i><label style="${LBL.all ? '' : 'opacity:.45'}"><input type="checkbox" data-lbl="${l.key}" ${LBL.off.includes(l.key) ? '' : 'checked'}> ${l.txt}</label><button data-fly="${l.key}" style="padding:1px 6px">◎</button></div>`).join(''); }).join('') +
+      Object.entries(grps).map(([g, ks]) => `<h3>${g}</h3>` + ks.map(k => `<div class="cat"><i style="background:${CATS[k].c}"></i><label><input type="checkbox" data-k="${k}" ${catHidden[k] ? '' : 'checked'}> ${CATS[k].th}</label><span class="mut">${ELS.filter(e => e.cat === k).length}</span></div>`).join('')).join('') +
+      `<h3>${L2('บริบท', 'Context')}</h3><div class="cat"><label><input type="checkbox" id="chkCity" ${city.visible ? 'checked' : ''}> ${L2('อาคาร/เมือง', 'City buildings')}</label></div><p class="mut" style="font-size:11.5px">${L2('คลิกชิ้นส่วนในโมเดลเพื่อดูคุณสมบัติ BIM', 'Click an element to see its BIM properties')}</p>`;
+    tb.querySelectorAll('input[data-k]').forEach(c => c.onchange = () => { catHidden[c.dataset.k] = !c.checked; refresh(); });
+    $('chkLblAll').onchange = e => setAllLabels(e.target.checked); $('chkCity').onchange = e => city.visible = e.target.checked;
+    tb.querySelectorAll('input[data-lbl]').forEach(c => c.onchange = () => { const k = c.dataset.lbl; LBL.off = LBL.off.filter(x => x !== k); if (!c.checked) LBL.off.push(k); else LBL.all = true; saveLBL(); applyLabels(); renderTab(); });
+    $('lblOn').onclick = () => { LBL.off = []; LBL.all = true; saveLBL(); applyLabels(); renderTab(); }; $('lblNone').onclick = () => { LBL.off = LABELS.map(l => l.key); saveLBL(); applyLabels(); renderTab(); };
+    tb.querySelectorAll('button[data-fly]').forEach(b => b.onclick = () => { const l = LABELS.find(x => x.key === b.dataset.fly), t = l.s.position.clone(); t.y = Math.max(t.y - 10, GY + 2); const r = 70; camAnim = { p0: camera.position.clone(), t0: controls.target.clone(), p1: t.clone().add(new THREE.Vector3(-r * .55, r * .5, r * .75)), t1: t, u: 0, dur: 1.4 }; });
+  } else tb.innerHTML = tx(PROJECT.info);
+  updateUI();
+}
+function focusOn(els) { const b = new THREE.Box3(); els.forEach(e => b.union(e.box)); const c = b.getCenter(new THREE.Vector3()), r = Math.max(25, b.getSize(new THREE.Vector3()).length() * .7); camAnim = { p0: camera.position.clone(), t0: controls.target.clone(), p1: c.clone().add(new THREE.Vector3(-r * .6, r * .55, r * .9)), t1: c, u: 0, dur: 1.4 }; }
+
+/* ---- KPIs + S-curve + activities ---- */
+const PERM = ELS.filter(e => !e.temp), SC = []; { const tot = PERM.reduce((a, e) => a + (e.finish - e.start), 0) || 1; for (let i = 0; i <= 120; i++) { const t = lerp(T0, T1, i / 120); SC.push(PERM.reduce((a, e) => a + clamp(t - e.start, 0, e.finish - e.start), 0) / tot); } }
+const progressAt = t => { const i = (t - T0) / (T1 - T0) * 120, a = Math.floor(clamp(i, 0, 119)); return lerp(SC[a], SC[a + 1], i - a); };
+const VOLCATS = PROJECT.structuralCats || [], totalVol = ELS.filter(e => e.qty?.vol && VOLCATS.includes(e.cat)).reduce((a, e) => a + e.qty.vol, 0);
+const KPIS = PROJECT.kpis || [
+  { t: ['ความก้าวหน้าตามแผน', 'Planned progress'], v: t => (progressAt(t) * 100).toFixed(1) + '%', bar: t => progressAt(t) },
+  { t: ['ชิ้นส่วนแล้วเสร็จ', 'Elements completed'], v: t => `${PERM.filter(e => t >= e.finish).length}/${PERM.length}` },
+  { t: ['คอนกรีตโครงสร้าง (m³)', 'Structural concrete (m³)'], v: t => `${Math.round(ELS.filter(e => e.qty?.vol && VOLCATS.includes(e.cat) && t >= (e.kind === 'cast' ? e.cast : e.finish)).reduce((a, e) => a + e.qty.vol, 0)).toLocaleString()} / ${Math.round(totalVol).toLocaleString()}` },
+  { t: ['งานชั่วคราวที่ใช้งาน', 'Temporary works active'], v: t => String(ELS.filter(e => e.temp && (e.st === 'wip' || e.st === 'done' || e.st === 'rm')).length) },
+];
+$('kpis').innerHTML = KPIS.map((k, i) => `<div class="kpi"><b id="kpi${i}">—</b><span>${tx(k.t)}</span>${k.bar ? `<div class="bar"><i id="kpib${i}" style="width:0"></i></div>` : ''}</div>`).join('');
+function drawSC() { const c = $('scurve'), g = c.getContext('2d'), w = c.width, h = c.height, css = getComputedStyle(document.body); g.clearRect(0, 0, w, h); g.strokeStyle = 'rgba(127,127,127,.3)'; g.lineWidth = 1; for (let i = 1; i < 4; i++) { g.beginPath(); g.moveTo(0, h * i / 4); g.lineTo(w, h * i / 4); g.stroke(); }
+  g.strokeStyle = css.getPropertyValue('--acc2'); g.lineWidth = 2; g.beginPath(); SC.forEach((v, i) => { const x = i / 120 * w, y = h - 4 - v * (h - 8); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke();
+  const x = (NOW - T0) / (T1 - T0) * w, y = h - 4 - progressAt(NOW) * (h - 8); g.fillStyle = g.strokeStyle = css.getPropertyValue('--acc'); g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill(); g.setLineDash([3, 3]); g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); g.setLineDash([]); }
+function updateUI() {
+  $('dateBig').textContent = fmtDate(NOW); $('dateSmall').textContent = fmtISO(NOW);
+  let cur = STEPS[0]; for (const s of STEPS) if (s.t0 <= NOW) cur = s; $('stepName').textContent = cur ? cur.t : '';
+  KPIS.forEach((k, i) => { $('kpi' + i).textContent = k.v(NOW); if (k.bar) $('kpib' + i).style.width = clamp(k.bar(NOW), 0, 1) * 100 + '%'; });
+  const act = new Map(); for (const e of ELS) if (e.st === 'wip' || e.st === 'rm') { let t = e.name; if (e.kind === 'cast' && e.st === 'wip') t += ' — ' + (NOW < e.cast - DAY ? L2('ผูกเหล็ก/แบบหล่อ', 'rebar / formwork') : NOW < e.cast + DAY ? L2('เทคอนกรีต', 'concrete pour') : L2('บ่ม/ถอดแบบ', 'curing / striking')); if (e.st === 'rm') t += L2(' — กำลังรื้อถอน', ' — dismantling'); else if (e.temp) t += L2(' — กำลังติดตั้ง', ' — installing'); if (!act.has(e.grp)) act.set(e.grp, []); act.get(e.grp).push(t); }
+  $('act').innerHTML = act.size ? [...act].slice(0, 9).map(([g, l]) => `<li><b>${g}</b><small>${l.slice(0, 2).join('<br>')}${l.length > 2 ? `<br>+ ${l.length - 2} ${L2('รายการ', 'more')}` : ''}</small></li>`).join('') : `<li style="border-color:var(--ok)">${L2('ไม่มีกิจกรรมก่อสร้าง ณ วันนี้', 'No construction activity on this date')}</li>`;
+  drawSC(); const gn = $('gnow'); if (gn) { gn.style.left = `calc(156px + (100% - 156px) * ${t2v(NOW) / 1000})`; document.querySelectorAll('#gwrap .grow').forEach(r => { const g = GROUPS[+r.dataset.i]; r.querySelector('.pg').style.width = clamp((NOW - g.a) / (g.b - g.a), 0, 1) * 100 + '%'; }); }
+  document.querySelectorAll('.ms-step').forEach((r, i) => r.classList.toggle('cur', STEPS[i] === cur));
+}
+/* ---- picking → BIM properties ---- */
+const ray = new THREE.Raycaster(), ptr = new THREE.Vector2(); let downAt = null, selBox = null;
+canvas.addEventListener('pointerdown', e => downAt = [e.clientX, e.clientY]);
+canvas.addEventListener('pointerup', e => {
+  if (!downAt || fly.on || tour.on || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 5) return;
+  ptr.set(e.clientX / innerWidth * 2 - 1, -e.clientY / innerHeight * 2 + 1); ray.setFromCamera(ptr, camera); const vis = o => { while (o) { if (!o.visible) return false; o = o.parent; } return true; };
+  const hit = ray.intersectObject(gStruct, true).find(h => h.object.isMesh && vis(h.object) && h.object.material !== M.ghost); if (selBox) { scene.remove(selBox); selBox = null; }
+  const p = $('props'); if (!hit) { p.style.display = 'none'; return; } let o = hit.object; while (o && !o.userData.el) o = o.parent; const el = o && o.userData.el; if (!el) return;
+  selBox = new THREE.Box3Helper(el.box, 0xffd43b); scene.add(selBox);
+  const st = { plan: ['plan', L2('ยังไม่เริ่ม', 'Not started')], wip: ['wip', L2('กำลังดำเนินการ', 'In progress')], done: ['done', L2('แล้วเสร็จ', 'Completed')], rm: ['wip', L2('กำลังรื้อถอน', 'Dismantling')], gone: ['plan', L2('รื้อถอนแล้ว', 'Removed')] }[el.st];
+  const rows = [['Element ID', el.id], [L2('ประเภท', 'Category'), CATS[el.cat]?.th], [L2('ชื่อ', 'Name'), el.name], [L2('สถานะ 4D', '4D status'), `<span class="pill ${st[0]}">${st[1]}</span>`], [L2('เริ่ม', 'Start'), fmtDate(el.start)], [L2('แล้วเสร็จ', 'Finish'), fmtDate(el.finish)]];
+  if (el.rmE) rows.push([L2('รื้อถอน', 'Removal'), fmtDate(el.rmS) + ' – ' + fmtDate(el.rmE)]); if (el.loc) rows.push([L2('ตำแหน่ง', 'Location'), el.loc]);
+  if (el.qty?.H) rows.push([L2('ความลึก H', 'Depth H'), el.qty.H.toFixed(2) + ' m']); if (el.qty?.L) rows.push([L2('ความยาว', 'Length'), el.qty.L.toFixed(2) + ' m']); if (el.qty?.vol) rows.push([L2('ปริมาตรคอนกรีต', 'Concrete volume'), el.qty.vol.toFixed(1) + ' m³']);
+  rows.push([L2('แบบอ้างอิง', 'Drawing ref.'), el.dwg || '—'], [L2('ที่มาของวันที่', 'Date source'), el.src]);
+  p.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><b class="acc">${L2('คุณสมบัติ BIM', 'BIM properties')}</b><button onclick="this.closest('#props').style.display='none'">✕</button></div><table>${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>`; p.style.display = 'block';
+});
+
+/* =====================================================================================
+   LOOP + URL STATE  (?date=YYYY-MM-DD&theme=day|sunset|night|bim|blue&view=…&lang=th|en&ui=0&panels=0&labels=0&lbloff=a,b&tab=…&tour=0..1)
+   ===================================================================================== */
+function updateUrl() { if (!history.replaceState) return; const u = new URL(location.href); u.searchParams.set('theme', theme); u.searchParams.set('date', fmtISO(NOW)); history.replaceState(null, '', u); }
+const clock = new THREE.Clock(); let frames = 0;
+function loop() {
+  requestAnimationFrame(loop); const dt = Math.min(clock.getDelta(), .1);
+  if (playing) { setNow(NOW + dt * (+$('speed').value) * DAY); if (NOW >= T1) togglePlay(); }
+  if (water) water.material.uniforms.time.value += dt * .6;
+  updateCars(dt); updateCranes(dt); updateProject(api, NOW, dt);
+  if (isNight) M.avi.emissiveIntensity = (performance.now() % 1500) < 700 ? 6 : .3;
+  if (camAnim) { camAnim.u = Math.min(1, camAnim.u + dt / camAnim.dur); const k = camAnim.u < .5 ? 2 * camAnim.u ** 2 : 1 - (-2 * camAnim.u + 2) ** 2 / 2; camera.position.lerpVectors(camAnim.p0, camAnim.p1, k); controls.target.lerpVectors(camAnim.t0, camAnim.t1, k); if (camAnim.u >= 1) camAnim = null; }
+  let spd = 0;
+  if (tour.on) { tour.u += dt / tour.dur; if (tour.u >= 1) stopTour(); else { const p = tour.posC.getPoint(tour.u), tg = tour.tgtC.getPoint(Math.min(1, tour.u + .004)); spd = p.distanceTo(tour.last) / Math.max(dt, 1e-3); tour.last.copy(p); camera.position.copy(p); camera.lookAt(tg); tour.bat = Math.max(12, 100 - tour.u * 70);
+      const idx = Math.round(tour.u * (TOUR.length - 1)); if (idx !== tour.idx) { tour.idx = idx; capEl.innerHTML = `${TOUR[idx][2]}<small>${TOUR[idx][3]}</small>`; capEl.style.display = 'block'; } hudUpdate(spd); } }
+  else if (fly.on) { const f = new THREE.Vector3(-Math.sin(fly.yaw) * Math.cos(fly.pitch), Math.sin(fly.pitch), -Math.cos(fly.yaw) * Math.cos(fly.pitch)), r = new THREE.Vector3(Math.cos(fly.yaw), 0, -Math.sin(fly.yaw)), k = fly.keys, v = (k.ShiftLeft || k.ShiftRight ? 60 : 18) * dt, mv = new THREE.Vector3();
+    if (k.KeyW || k.ArrowUp) mv.add(f); if (k.KeyS || k.ArrowDown) mv.sub(f); if (k.KeyD || k.ArrowRight) mv.add(r); if (k.KeyA || k.ArrowLeft) mv.sub(r); if (k.KeyR || k.KeyE) mv.y += 1; if (k.KeyF || k.KeyQ) mv.y -= 1;
+    if (mv.lengthSq()) mv.normalize().multiplyScalar(v); camera.position.add(mv); camera.position.y = Math.max((CX.water ? CX.water.y : GY) + 1.5, camera.position.y); spd = mv.length() / Math.max(dt, 1e-3); camera.lookAt(camera.position.clone().add(f)); tour.bat = Math.max(5, tour.bat - dt * .08); hudUpdate(spd); }
+  else controls.update();
+  const active = ELS.filter(e => e.st === 'wip' || e.st === 'rm'); let dist = 1e9; for (const e of active) dist = Math.min(dist, camera.position.distanceTo(e.center));
+  snd.update(dt, { dist, alt: camera.position.y - GY, real: MODE === 'real', water: !!CX.water, night: isNight, active: active.length > 0, casting: active.some(e => e.kind === 'cast' && NOW >= e.cast - DAY && NOW < e.cast + DAY), drone: tour.on || fly.on, speed: spd, opened: NOW >= OPEN });
+  composer.render();
+  if (++frames === 3) { $('loading').style.opacity = 0; setTimeout(() => $('loading').remove(), 700); }
+  if (frames === 30) document.title = PROJECT.short || '4D BIM'; if (frames === 45) window.__READY = true;
+}
+addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); });
+slider.value = t2v(NOW);
+applyTheme(QS.get('theme') || 'day');
+const v0 = QS.get('view'), vk = v0 && VIEWS[v0] ? v0 : Object.keys(VIEWS)[0]; camera.position.set(...VIEWS[vk][0]); controls.target.set(...VIEWS[vk][1]); $('view').value = vk;
+if (QS.get('ui') === '0') document.body.classList.add('noui');
+applyLabels();
+if (QS.get('tour')) { const u = +QS.get('tour'), p = tour.posC.getPoint(u), tg = tour.tgtC.getPoint(Math.min(1, u + .004)); controls.enabled = false; camera.position.copy(p); camera.lookAt(tg); controls.target.copy(tg); hud.style.display = 'block'; capEl.style.display = 'block'; const i = Math.round(u * (TOUR.length - 1)); capEl.innerHTML = `${TOUR[i][2]}<small>${TOUR[i][3]}</small>`; hudUpdate(12); }
+document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x.dataset.tab === tab));
+renderTab(); refresh(); loop();
+window.__app = { setNow, applyTheme, goView, ELS, startTour, api };
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => { });
+</script>
+</body>
+</html>

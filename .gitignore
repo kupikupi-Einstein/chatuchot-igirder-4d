@@ -1,0 +1,11 @@
+_site/
+__pycache__/
+*.schedule.json
+.DS_Store
+Thumbs.db
+# never commit project source documents
+*.pdf
+*.mpp
+*.dwg
+*.rvt
+*.pptx
