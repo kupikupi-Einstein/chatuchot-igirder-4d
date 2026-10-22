@@ -210,7 +210,7 @@ const fmtDate = t => new Date(t).toLocaleDateString(LANG === 'en' ? 'en-GB' : 't
    (z > 0 = inbound carriageway side "ขาเข้ากรุงเทพฯ", z < 0 = outbound side "ขาออก").
    >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
 const G = { ready: false };                                   // runtime state shared by buildProject / updateProject / KPIs
-const SPANS = [20.046, 20.000, 25, 30, 30, 25, 25, 30, 30, 25, 25, 30, 30, 25, 25, 30, 30, 25];   // S1–S2 from lifting plan, S3–S18 assumed
+const SPANS = [20.046, 20.000, 30, 30, 25, 25, 30, 30, 25, 25, 30, 30, 25, 25, 30, 30, 25, 25];   // S1–S4 from the lifting-plan drawings (EJ 0-000.853, MLP1-01 0+019.193, -02 0+039.193, -03 0+069.193), S5–S18 assumed
 const NSP = SPANS.length;
 const PROJECT = {
   id: 'chatuchot-igirder',
@@ -257,6 +257,7 @@ const PROJECT = {
     section: { t: ['แนวคาน G1–G6 / Bracing', 'Girder lines G1–G6 / bracing'], pos: [55, 13.5, 0.1], target: [75, 8.5, 0] },
     median: { t: ['ใต้สะพาน (เกาะกลาง)', 'Under the deck (median)'], pos: [40, 2.6, -9], target: [80, 7, 0] },
     traffic: { t: ['มุมผู้ขับขี่ขาเข้า – ปิดไหล่ทางขวา', 'Inbound driver – right shoulder closed'], pos: [170, 1.6, 17.75], target: [80, 3, 15.5] },
+    plan: { t: ['แปลนช่วงที่ยก (เทียบแบบ Lifting plan)', 'Plan of the span (compare with the lifting plan)'], pos: [85, 75, .1], target: [85, 0, 0] },
     top: { t: ['มุมบน (Plan)', 'Top (plan)'], pos: [240, 520, 1], target: [240, 0, 0] },
   },
   tour: [
@@ -278,10 +279,10 @@ const PROJECT = {
     { d: S => S.TM[0], dw: 'หนังสือขอปิดเบี่ยงจราจร (ข้อ 1)', t: ['ปิดเบี่ยงจราจรไหล่ทางขวา บริเวณด่านฯ จตุโชติ ขาเข้า 500 ม.', 'Close the inbound right shoulder at Chatuchot toll plaza, 500 m'], b: [['24 ต.ค. 69 – 25 ก.พ. 70 (ชั่วคราว) · ผู้ใช้ทางยังใช้ได้ 3 ช่องทาง', '24 Oct 2026 – 25 Feb 2027 (temporary) · 3 lanes remain open'], ['กรวยยาง ป้ายเตือน รถติดป้ายลูกศร ตามแผนจัดการจราจร', 'Cones, warning signs, arrow-board truck per the TMP'], ['ประชาสัมพันธ์ / แจ้งหน่วยงานล่วงหน้า ≥ 7 วัน', 'Public notice / agencies informed ≥ 7 days ahead']] },
     { d: S => S.MOB[0], dw: 'PPT slide 3, 29–33, 43–46', t: ['นำ Truck crane 110 t × 2 คัน เข้าพื้นที่', 'Mobilise 2 × 110 t truck cranes'], b: [['ZOOMLION ZTC1100R · ลวดสลิง 1½", 2" · สเก็นโอเมก้า 35 t / 50 t', 'ZOOMLION ZTC1100R · 1½", 2" wire slings · 35 t / 50 t omega shackles'], ['พื้นที่ยืนเครน: บดอัดแน่น ระบายน้ำดี ไม่มีน้ำขัง', 'Crane pads: compacted, well drained, no ponding'], ['คาน 18 m (38 t): 19 t/คัน · R 12 m · Boom 21.6 m · รับได้ 28.5 t → 74.05 %', '18 m girder (38 t): 19 t per crane · R 12 m · 21.6 m boom · 28.5 t → 74.05 %'], ['คาน 20–30 m (≤ 58 t): 29 t/คัน · R 8–9 m · รับได้ 43.5 t → 72.66 %', '20–30 m girder (≤ 58 t): 29 t per crane · R 8–9 m · 43.5 t → 72.66 %']] },
     { d: S => S.E1[0], dw: 'PPT slide 5–16', t: ['ขนส่งคาน – รถกึ่งพ่วงหางสาลี่ จากโรงหล่อบางปะอิน (44 กม.)', 'Girder delivery – pole trailers from the Bang Pa-In casting yard (44 km)'], b: [['ถนนวงแหวนรอบนอก (9) → ต่างระดับจตุโชติ → ออกคู่ขนานก่อนด่าน → เข้าหน่วยงาน', 'Outer Ring Rd (9) → Chatuchot interchange → frontage road before the toll → site'], ['ตรวจคานตรงตาม Span / Shop drawing · วางทิศคานบนรถให้ตรงกับการติดตั้ง', 'Check girder ID vs span & shop drawing · orientation on the trailer to suit erection'], ['รถนำ + รถปิดขบวน · วิทยุสื่อสาร · Toolbox talk · โฟร์แมนเรียกรถเข้าทีละคัน', 'Lead + tail escort · radios · toolbox talk · foreman calls trailers in one by one']] },
-    { d: S => S.E1[0], dw: 'MS §6.3 STEP 1–6 · PPT slide 34–42', t: ['ยกติดตั้งคาน – Tandem lift 2 เครน (Span 1)', 'Erect girders – two-crane tandem lift (span 1)'], b: [['ตรวจทิศปลายคาน Down Sta. / Up Sta. ห้ามสลับ (Down stand สองด้านไม่เหมือนกัน)', 'Check Down / Up Sta. ends – never swap (different down-stands)'], ['ชุดแรก: คานตัวที่ 1–3 (เครนฝั่งขาเข้า) → ย้ายเครน → ชุดหลัง: คานตัวที่ 4–6', 'First batch girders 1–3 (cranes inbound side) → relocate → girders 4–6'], ['STEP 1 คานริม + Side bracing (Stud bolt M16) · STEP 2–5 Top bracing C100×50×5×7.5 · STEP 6 คานริม + Side bracing', 'STEP 1 edge girder + side bracing (M16 studs) · STEP 2–5 top bracing C100×50×5×7.5 · STEP 6 edge girder + side bracing'], ['ดูรายชั่วโมงได้ที่แผง 🏗 ขั้นตอนการยกคาน', 'See the hour-by-hour 🏗 lifting-sequence panel']] },
+    { d: S => S.E1[0], dw: 'MS §6.3 STEP 1–6 · Method Erection I Girder p.2–10 / 12–23', t: ['ยกติดตั้งคาน – Tandem lift 2 เครน (2 กรณีตามความยาวคาน)', 'Erect girders – two-crane tandem lift (2 cases by girder length)'], b: [['Case A – Span 18 m (คาน ≈ 17.9 m · 38 t): เครน #1 ยืนใต้ช่วงที่ยก · เครน #2 ยืนในช่วงถัดไป · R 8–12 m · 74.05 %', 'Case A – 18 m span (girder ≈ 17.9 m · 38 t): crane #1 under the span being erected · crane #2 in the next span · R 8–12 m · 74.05 %'], ['Case B – Span 20–30 m (คาน ≤ 58 t): เครน #1 ยืนในช่วงถัดจากตอม่อต้นช่วง · เครน #2 ยืนเลยตอม่อปลายช่วง · R 7–8 m · 72.66 %', 'Case B – 20–30 m span (girder ≤ 58 t): crane #1 inside the span next to the start pier · crane #2 just past the end pier · R 7–8 m · 72.66 %'], ['รถหางสาลี่จอดชิดขอบด้านตรงข้ามคานชุดแรก → ยกขึ้น → สวิง (Slew) ปลายคานแต่ละด้านเข้าตำแหน่ง → วางบนแผ่นยาง', 'Pole trailer parks along the edge opposite the first batch → lift → each crane slews its end into place → set on the pads'], ['ชุดแรก: คานตัวที่ 1–3 → ย้ายเครน #1 ไปชิดขอบด้านรถขนส่ง → ชุดหลัง: คานตัวที่ 4–6 (รถขนส่งถอยเข้า)', 'First batch girders 1–3 → crane #1 moves to the trailer-side edge → girders 4–6 (trailers reverse in)'], ['ตรวจทิศปลายคาน Down Sta. / Up Sta. ห้ามสลับ (Down stand สองด้านไม่เหมือนกัน)', 'Check Down / Up Sta. ends – never swap (different down-stands)'], ['STEP 1 คานริม + Side bracing (Stud bolt M16) · STEP 2–5 Top bracing C100×50×5×7.5 · STEP 6 คานริม + Side bracing', 'STEP 1 edge girder + side bracing (M16 studs) · STEP 2–5 top bracing C100×50×5×7.5 · STEP 6 edge girder + side bracing'], ['ดูรายชั่วโมงได้ที่แผง 🏗 ขั้นตอนการยกคาน', 'See the hour-by-hour 🏗 lifting-sequence panel']] },
     { d: S => addD(S.E1[0], 1), dw: 'MS §6.3', t: ['ตรวจแผ่นยาง · ผูกเหล็ก/แบบ Diaphragm', 'Check bearings · diaphragm rebar / formwork'], b: [['แผ่นยางต้องแนบสนิทกับ Down stand – มีช่องว่างแก้ด้วย Epoxy resin mortar', 'Pads must seat fully under the down-stand – gaps filled with epoxy resin mortar'], ['เท End diaphragm ทั้ง 2 ด้านก่อน', 'Cast both end diaphragms first']] },
     { d: S => addD(S.E1[0], 4), dw: 'MS §6.3', t: ['ถอดค้ำยันชั่วคราว · เท Intermediate diaphragm', 'Remove temporary bracing · cast intermediate diaphragm'], b: [['ถอด Side / Top bracing ได้เมื่อ End diaphragm แล้วเสร็จ', 'Side / top bracing removed only after the end diaphragms are cast']] },
-    { d: S => S.E2[0], dw: 'PPT slide 2, 7, 43', t: ['ทำซ้ำ Span 2–18 (รอบ 6 วัน / Span)', 'Repeat spans 2–18 (6-day cycle per span)'], b: [['Span 1–2: 20 m (คาน 17.9 m · 38 t)', 'Spans 1–2: 20 m (girder 17.9 m · 38 t)'], ['Span 3–18: 25 / 30 m (คาน 22.9 / 27.9 m · 48 / 58 t) – สมมติ', 'Spans 3–18: 25 / 30 m (girder 22.9 / 27.9 m · 48 / 58 t) – assumed'], ['รวม 108 คาน ในช่วงปิดเบี่ยง 480 ม.', '108 girders within the 480 m closure']] },
+    { d: S => S.E2[0], dw: 'PPT slide 2, 7, 43', t: ['ทำซ้ำ Span 2–18 (รอบ 6 วัน / Span)', 'Repeat spans 2–18 (6-day cycle per span)'], b: [['Span 1–2: 20 m (คาน 17.9 m · 38 t) → Case A', 'Spans 1–2: 20 m (girder 17.9 m · 38 t) → Case A'], ['Span 3–4: 30 m (คาน 27.9 m · 58 t) ตามแบบ · Span 5–18: 25 / 30 m – สมมติ → Case B', 'Spans 3–4: 30 m (girder 27.9 m · 58 t) per the plans · spans 5–18: 25 / 30 m – assumed → Case B'], ['รวม 108 คาน ในช่วงปิดเบี่ยง 480 ม.', '108 girders within the 480 m closure']] },
     { d: S => S.E18[0], dw: '—', t: ['ยกคาน Span 18 · ย้ายเครนออก', 'Erect span 18 · demobilise cranes'], b: [['เครนออกจากพื้นที่หลังยกคานตัวสุดท้าย', 'Cranes leave after the last lift']] },
     { d: S => S.TM[1], dw: 'หนังสือขอปิดเบี่ยงจราจร', t: ['คืนพื้นที่ไหล่ทาง – เปิดการจราจรปกติ', 'Shoulder returned – normal traffic'], b: [['เก็บกรวย / ป้าย / รถลูกศร · ทำความสะอาดผิวจราจร', 'Remove cones / signs / arrow truck · clean the carriageway']] },
   ],
@@ -294,7 +295,7 @@ const PROJECT = {
     { t: ['ปิดเบี่ยงไหล่ทางขวา 500 ม.', 'Right-shoulder closure 500 m'], v: t => { if (!G.tm) return '—'; const [a, b] = G.tm; if (t < a) return L2('ยังไม่เริ่ม', 'not started'); if (t >= b) return L2('คืนพื้นที่แล้ว', 'reopened'); return L2('วันที่ ', 'day ') + (Math.floor((t - a) / DAY) + 1) + ' / ' + Math.round((b - a) / DAY); } },
   ],
   hse: ['<h3>ความปลอดภัย / สิ่งแวดล้อม / จราจร (MS §7)</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li>ประชุมชี้แจงขั้นตอน (Toolbox talk) ทุกวัน · ตรวจเครื่องมือ/เครน/สลิงก่อนใช้งาน</li><li>Lifting plan ทุก Span · ห้ามคนอยู่ใต้รัศมีการยก · ผู้ให้สัญญาณเครนที่ผ่านการอบรม</li><li>ทำงานบนที่สูง: Full-body harness + Lifeline บนคาน (PPT slide 65–66)</li><li>PPE ครบ · กั้นพื้นที่ทำงาน · ป้ายเตือน · ไฟส่องสว่างกลางคืน</li><li>ฝุ่น/เสียง: ฉีดน้ำ ทำความสะอาดล้อรถ · ไม่ทิ้งวัสดุลงทางระบายน้ำ</li><li>จราจร: ปฏิบัติตามแผนจัดการจราจรที่ได้รับอนุมัติ · ประชาสัมพันธ์ ≥ 7 วัน</li><li>เอกสารแนบ: ITP · QC checklist · Inspection sheet · JSA</li></ul>', '<h3>Safety / environment / traffic (MS §7)</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li>Daily toolbox talk · inspect tools, cranes and slings before use</li><li>Lifting plan for every span · nobody under the load · certified signaller</li><li>Work at height: full-body harness + lifeline on girders (PPT slides 65–66)</li><li>Full PPE · barricaded work zone · warning signs · night lighting</li><li>Dust / noise: water spraying, wheel washing · nothing into drains</li><li>Traffic: approved TMP · public notice ≥ 7 days</li><li>Attachments: ITP · QC checklist · inspection sheet · JSA</li></ul>'],
-  info: ['<h3>แหล่งข้อมูล</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li><b>MS</b> ITD/RB2/J.2599/QES/MS/S1/01 Rev.2 – วิธีการติดตั้งคานหน้าตัดรูปตัว I และ C (ขั้นตอน §6, STEP 1–6, Front elevation / Side bracing / Detail 1–2)</li><li><b>PPT</b> Method Erection I Girder Rev.140869 – เครน 2 × 100–220 t, ZTC1100R Load chart, Lifting plan 74.05 % / 72.66 %, ลำดับยก 1–8, เส้นทางขนส่ง 44 กม., รถหางสาลี่</li><li><b>PDF</b> ขออนุมัติปิดเบี่ยงจราจร I-girder – ไหล่ทางขวาขาเข้า 500 ม. (24 ต.ค. 69 – 25 ก.พ. 70), ไหล่ทางซ้าย 300 ม. (23–25 ต.ค. 69)</li></ul><h3>ข้อมูลหลักที่ใช้</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li>Span 1 = 20.046 m, Span 2 = 20.000 m (Lifting plan) · คาน P0L 17.93 m · 38 t</li><li>คาน 6 แนว / Span · ยกคานตัวริมก่อน (G1) → G6</li><li>เครน ZTC1100R Main boom 21.6 m · R 8–12 m</li></ul><h3>สมมติฐาน (Assumed)</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li>ไม่มีแบบ General layout / Programme: ความยาว Span 3–18 (25/30 m), ระยะห่างคาน 2.30 m, ความลึกคาน 1.20/1.45/1.65 m, ระดับคานหัวเสา +8.0 m, รูปเสา/คานหัวเสาตาม Front elevation ใน MS</li><li>รอบงาน 6 วัน/Span ภายในช่วงปิดเบี่ยง · เวลาในวันยกตาม PPT ขั้นตอน 1–8</li><li>ตำแหน่งด่านฯ / โครงสร้างเดิม / ถนนคู่ขนาน / บ่อน้ำ เป็นตำแหน่งโดยประมาณ</li><li>แสดงเฉพาะ I-Girder (C-Girder สำหรับ Ramp ใช้ขั้นตอนเดียวกัน)</li></ul><h3>พิกัด</h3><p class="mut" style="font-size:11.5px">x = ระยะตามแนวสะพานจาก EJ (ทิศขาออก), z+ = ด้านขวาเมื่อมองตาม +x = ฝั่งขาเข้ากรุงเทพฯ, y = ความสูงจากผิวจราจร</p>', '<h3>Sources</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li><b>MS</b> ITD/RB2/J.2599/QES/MS/S1/01 Rev.2 – installation of I- and C-girders (§6, STEP 1–6, front elevation / side bracing / details 1–2)</li><li><b>PPT</b> Method Erection I Girder Rev.140869 – 2 × 100–220 t cranes, ZTC1100R load chart, lifting plan 74.05 % / 72.66 %, lift sequence 1–8, 44 km delivery route, pole trailers</li><li><b>PDF</b> traffic-closure approval – inbound right shoulder 500 m (24 Oct 2026 – 25 Feb 2027), left shoulder 300 m (23–25 Oct 2026)</li></ul><h3>Key data</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li>Span 1 = 20.046 m, span 2 = 20.000 m (lifting plan) · girder P0L 17.93 m · 38 t</li><li>6 girder lines per span · edge girder G1 first → G6</li><li>ZTC1100R main boom 21.6 m · R 8–12 m</li></ul><h3>Assumptions</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li>No general layout / programme supplied: spans 3–18 (25/30 m), girder spacing 2.30 m, girder depth 1.20/1.45/1.65 m, crossbeam ledge +8.0 m, pier shape from the MS front elevation</li><li>6-day span cycle inside the closure · hours of the erection day from PPT steps 1–8</li><li>Toll plaza / existing structure / frontage roads / pond positions are approximate</li><li>Only I-girders shown (C-girders for ramps follow the same method)</li></ul><h3>Coordinates</h3><p class="mut" style="font-size:11.5px">x = chainage along the viaduct from the EJ (outbound), z+ = right looking along +x = inbound side, y = height above the carriageway</p>'],
+  info: ['<h3>แหล่งข้อมูล</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li><b>MS</b> ITD/RB2/J.2599/QES/MS/S1/01 Rev.2 – วิธีการติดตั้งคานหน้าตัดรูปตัว I และ C (ขั้นตอน §6, STEP 1–6, Front elevation / Side bracing / Detail 1–2)</li><li><b>PPT</b> Method Erection I Girder Rev.140869 – เครน 2 × 100–220 t, ZTC1100R Load chart, Lifting plan 74.05 % / 72.66 %, ลำดับยก 1–8, เส้นทางขนส่ง 44 กม., รถหางสาลี่</li><li><b>PDF</b> Method Erection I Girder (23 หน้า) – ตำแหน่งเครน / รถขนส่ง / รัศมียก 2 กรณี: Case A Span 18 m 38 t (หน้า 1–10), Case B Span 20–30 m 58 t (หน้า 11–23) · ชื่อคาน P0L-1…P2L-6 (CFV = C-Girder ริม, IFV = I-Girder ใน) · สถานีตอม่อ EJ 0-000.853, MLP1-01 0+019.193, MLP1-02 0+039.193, MLP1-03 0+069.193</li><li><b>PDF</b> ขออนุมัติปิดเบี่ยงจราจร I-girder – ไหล่ทางขวาขาเข้า 500 ม. (24 ต.ค. 69 – 25 ก.พ. 70), ไหล่ทางซ้าย 300 ม. (23–25 ต.ค. 69)</li></ul><h3>ข้อมูลหลักที่ใช้</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li>Span 1 = 20.046 m, Span 2 = 20.000 m (Lifting plan) · คาน P0L 17.93 m · 38 t</li><li>คาน 6 แนว / Span · ยกคานตัวริมก่อน (G1) → G6</li><li>เครน ZTC1100R Main boom 21.6 m · R 8–12 m</li></ul><h3>สมมติฐาน (Assumed)</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li>แบบ Lifting plan ไม่ระบุทิศ: ใช้ด้านล่างของแบบ (คานชุดแรก) = ฝั่งขวาเมื่อมองตาม +x (ฝั่งขาเข้า), ด้านบน (รถขนส่ง / เครนชุดหลัง) = ฝั่งขาออกของเกาะกลาง – สลับได้ด้วยค่า SD ในไฟล์</li><li>ไม่มีแบบ General layout / Programme: ความยาว Span 5–18 (25/30 m), ระยะห่างคาน 2.30 m, ความลึกคาน 1.20/1.45/1.65 m, ระดับคานหัวเสา +8.0 m, รูปเสา/คานหัวเสาตาม Front elevation ใน MS</li><li>รอบงาน 6 วัน/Span ภายในช่วงปิดเบี่ยง · เวลาในวันยกตาม PPT ขั้นตอน 1–8</li><li>ตำแหน่งด่านฯ / โครงสร้างเดิม / ถนนคู่ขนาน / บ่อน้ำ เป็นตำแหน่งโดยประมาณ</li><li>คานริม (CFV) แสดงเป็นหน้าตัดเดียวกับ I-Girder – รูปหน้าตัด C-Girder จริงตาม Shop drawing</li></ul><h3>พิกัด</h3><p class="mut" style="font-size:11.5px">x = ระยะตามแนวสะพานจาก EJ (ทิศขาออก), z+ = ด้านขวาเมื่อมองตาม +x = ฝั่งขาเข้ากรุงเทพฯ, y = ความสูงจากผิวจราจร</p>', '<h3>Sources</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li><b>MS</b> ITD/RB2/J.2599/QES/MS/S1/01 Rev.2 – installation of I- and C-girders (§6, STEP 1–6, front elevation / side bracing / details 1–2)</li><li><b>PPT</b> Method Erection I Girder Rev.140869 – 2 × 100–220 t cranes, ZTC1100R load chart, lifting plan 74.05 % / 72.66 %, lift sequence 1–8, 44 km delivery route, pole trailers</li><li><b>PDF</b> Method Erection I Girder (23 pages) – crane / trailer positions and lifting radii for 2 cases: Case A 18 m span 38 t (p.1–10), Case B 20–30 m span 58 t (p.11–23) · girder marks P0L-1…P2L-6 (CFV = edge C-girder, IFV = interior I-girder) · pier stations EJ 0-000.853, MLP1-01 0+019.193, MLP1-02 0+039.193, MLP1-03 0+069.193</li><li><b>PDF</b> traffic-closure approval – inbound right shoulder 500 m (24 Oct 2026 – 25 Feb 2027), left shoulder 300 m (23–25 Oct 2026)</li></ul><h3>Key data</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li>Span 1 = 20.046 m, span 2 = 20.000 m (lifting plan) · girder P0L 17.93 m · 38 t</li><li>6 girder lines per span · edge girder G1 first → G6</li><li>ZTC1100R main boom 21.6 m · R 8–12 m</li></ul><h3>Assumptions</h3><ul class="mut" style="padding-left:16px;font-size:11.5px"><li>The lifting plans carry no orientation: the lower side of the drawing (first batch) is taken as right of +x (inbound side) and the upper side (trailer / crane #1 second set-up) as the outbound side of the median – mirror with SD in the file</li><li>No general layout / programme supplied: spans 5–18 (25/30 m), girder spacing 2.30 m, girder depth 1.20/1.45/1.65 m, crossbeam ledge +8.0 m, pier shape from the MS front elevation</li><li>6-day span cycle inside the closure · hours of the erection day from PPT steps 1–8</li><li>Toll plaza / existing structure / frontage roads / pond positions are approximate</li><li>Edge girders (CFV) are drawn with the I-girder section – actual C-girder shape per shop drawing</li></ul><h3>Coordinates</h3><p class="mut" style="font-size:11.5px">x = chainage along the viaduct from the EJ (outbound), z+ = right looking along +x = inbound side, y = height above the carriageway</p>'],
   labelGroups: [['pier', ['ตอม่อ', 'Piers']], ['span', ['ช่วงสะพาน', 'Spans']], ['equip', ['เครื่องจักร', 'Plant']], ['road', ['ถนน / จราจร', 'Roads / traffic']], ['land', ['สถานที่', 'Landmarks']]],
   structuralCats: ['girder', 'diaph', 'plinth'],
   archAfterStructure: false,
@@ -309,13 +310,24 @@ function buildProject(api) {
   // ---------------- geometry constants ----------------
   const XS = [0]; SPANS.forEach(s => XS.push(XS.at(-1) + s)); G.XS = XS;
   const LEDGE = 8.0, PL = 0.2, PAD = 0.06, SOF = LEDGE + PL + PAD; G.SOF = SOF;   // ledge top / plinth / pad → girder soffit
-  const GZ = [5.75, 3.45, 1.15, -1.15, -3.45, -5.75];               // girder lines G1..G6 (G1 = inbound-side edge girder)
+  // Lifting-plan drawings (Method Erection I Girder.pdf): chainage increases to the right; girders 1–3 (first batch) are on the lower side of the
+  // drawing, the trailer and crane #1 (second batch) on the upper side. SD = +1 maps the drawing's lower side to z+ (right of +x); set SD = -1 to mirror.
+  const SD = 1; G.SD = SD;
+  const GZ = [5.75, 3.45, 1.15, -1.15, -3.45, -5.75].map(z => z * SD);   // girder lines G1..G6 (G1, G6 = edge C-girders CFV; G2–G5 = I-girders IFV)
   const CB = 6.9;                                                   // crossbeam half length
   const gL = s => s - 2.1, gH = L => L < 20 ? 1.2 : L < 25 ? 1.45 : 1.65, gW = L => Math.round(L < 18.5 ? 38 : 38 + (L - 17.95) * 20 / (27.9 - 17.95));
   const SH = SPANS.map(s => gH(gL(s)));                             // girder depth per span
   const stemTop = j => SOF + Math.max(SH[j - 1] || 0, SH[j] || 0);  // stem top at support j = top of the deeper adjoining girder
   const LH = [7.0, 8.25, 9.5, 12.0, 13.25, 14.5]; G.LH = LH;        // lift start hour of girders G1..G6 on the erection day
   const LIFT = .75 * HR;
+  /* Two lifting cases from "Method Erection I Girder.pdf" (crane slew centres measured on the plans, metres):
+     c1 = crane #1 [dx from the start pier, z] for batch 1 (girders 1–3) / batch 2 (girders 4–6); c2 = crane #2 [dx from the end pier, z];
+     tr = trailer: [girder-centre dx from the end pier, z, arrival (-1 forward from -x, +1 reversing in from +x)] */
+  const CASES = {
+    A: { c1: [[7.4, -1.7], [7.3, -7.8]], c2: [[8.1, 3.5], [7.6, 1.8]], tr: [[0, -11, -1], [6.5, -9.5, 1]], R: '8–12', pdf: 'p.2–10', cap: '74.05' },
+    B: { c1: [[7.0, 0], [2.2, -9.1]], c2: [[5.5, .9], [6.7, -3.3]], tr: [[-4, -8, -1], [-4, -13.5, 1]], R: '7–8 (G6: R 4)', pdf: 'p.12–23', cap: '72.66' } };
+  const caseOf = i => SPANS[i - 1] < 22 ? 'A' : 'B'; G.caseOf = caseOf; G.CASES = CASES;
+  const DWL = { 1: [17.930, 17.936, 17.943, 17.949, 17.956, 17.962], 2: [17.905, 17.914, 17.923, 17.932, 17.942, 17.951], 3: [27.908, 27.921, 27.935, 27.949, 27.962, 27.976] };   // girder lengths on the plans
   const Ed = i => D(date('E' + i)[0]); G.Ed = Ed;
   // ---------------- materials ----------------
   const pc = new THREE.MeshStandardMaterial({ color: 0xe9e5dd, map: api.texConcrete('#d6d2ca'), roughness: .8 });
@@ -412,9 +424,10 @@ function buildProject(api) {
     // girders G1..G6
     for (let k = 0; k < 6; k++) {
       const o = new THREE.Group(), m = mesh(girderGeo(L, H), pc); o.add(m); o.position.set(xm, SOF, GZ[k]);
-      const Ls = E + LH[k] * HR, Le = Ls + LIFT, sig = k < 3 ? 1 : -1;
-      const e = addEl({ id: `G${i}-${k + 1}`, name: `${SP(i)} · Girder G${k + 1} (L = ${L.toFixed(2)} m, ≈ ${W} t)`, cat: 'girder', grp, obj: o, start: Ls, finish: Le, dwg: `MS §6.3 STEP ${k + 1} · PPT ${L < 19 ? 'slide 34–42' : 'slide 47–58'}`, src: srcA, qty: { L, H, vol: W / 2.5 }, loc: `x ${gx0.toFixed(2)} – ${gx1.toFixed(2)} m · line G${k + 1} (z ${GZ[k] > 0 ? '+' : ''}${GZ[k]} m)` });
-      G.girders.push({ e, i, k, xm, z: GZ[k], L, H, W, Ls, Le, sig, zt: sig * 7.6, yHigh: Math.max(stemTop(i - 1), stemTop(i)) + .45 });
+      const Ls = E + LH[k] * HR, Le = Ls + LIFT, b = k < 3 ? 0 : 1, K = CASES[caseOf(i)], edge = k === 0 || k === 5, Ld = (DWL[i] || [])[k];
+      const e = addEl({ id: `P${i - 1}L-${k + 1}`, name: `${SP(i)} · P${i - 1}L-${k + 1} ${edge ? 'C-Girder (CFV, edge)' : 'I-Girder (IFV)'} · L = ${(Ld || L).toFixed(3)} m · ≈ ${W} t · Case ${caseOf(i)}`, cat: 'girder', grp, obj: o, start: Ls, finish: Le, dwg: `MS §6.3 STEP ${k + 1} · Method Erection I Girder ${K.pdf}`, src: srcA, qty: { L, H, vol: W / 2.5 }, loc: `x ${gx0.toFixed(2)} – ${gx1.toFixed(2)} m · line G${k + 1} (z ${GZ[k] > 0 ? '+' : ''}${GZ[k]} m)` });
+      G.girders.push({ e, i, k, xm, z: GZ[k], L, H, W, Ls, Le, b, xt: xb + K.tr[b][0], zt: K.tr[b][1] * SD, dir: K.tr[b][2],
+        sA: { x: xa + K.c1[b][0], z: K.c1[b][1] * SD }, sB: { x: xb + K.c2[b][0], z: K.c2[b][1] * SD }, yHigh: Math.max(stemTop(i - 1), stemTop(i)) + .45 });
     }
     // temporary bracing (installed after each lift, removed after the end diaphragms)
     const rmS = E + 4 * DAY + 8 * HR, rmE = E + 4 * DAY + 12 * HR;
@@ -472,17 +485,19 @@ function buildProject(api) {
     const tip = new THREE.Object3D(); tip.position.set(BL + .2, -.45, 0); piv.add(tip);
     return { obj: g, tur, piv, tip, outs };
   }
-  const work = (i, set, c) => { const z = (set === 1 ? 1 : -1) * 12.8; return c === 0 ? { x: XS[i - 1] - .5, z, hd: Math.PI } : { x: XS[i] + .5, z, hd: 0 }; };
-  const mid = i => i < 1 ? -15 : i > NSP ? XS[NSP] + 14 : (XS[i - 1] + XS[i]) / 2;
+  // carrier centre = slew centre + 2.5 m (slew ring at the rear, cab towards +x as drawn on the plans)
+  const work = (i, set, c) => { const K = CASES[caseOf(i)], p = (c === 0 ? K.c1 : K.c2)[set - 1]; return { x: (c === 0 ? XS[i - 1] : XS[i]) + p[0] + 2.5, z: p[1] * SD, hd: 0 }; };
+  const lane = -10.5 * SD, via = (a, b) => [a, { x: a.x, z: lane }, { x: b.x, z: lane }, b];   // travel lane in the median, clear of the pier columns
   const MOB = D(date('MOB')[0]);
   G.cr = [0, 1].map(c => {
     const C = makeTruckCrane(), moves = [];
-    moves.push({ t0: MOB + (8.4 - c * .4) * HR, t1: MOB + (10.4 - c * .4) * HR, from: { x: -300, z: 14.2, hd: 0 }, to: work(1, 1, c), xm: 0, cold: true });
+    { const to = work(1, 1, c); moves.push({ t0: MOB + (8.6 - c * .6) * HR, t1: MOB + (10.6 - c * .6) * HR, pts: [{ x: -300, z: lane, hd: 0 }, { x: to.x, z: lane }, to], cold: true }); }
     for (let i = 1; i <= NSP; i++) {
-      if (i > 1) moves.push({ t0: Ed(i) + 5.9 * HR, t1: Ed(i) + 6.6 * HR, from: work(i - 1, 2, c), to: work(i, 1, c), xm: c === 0 ? mid(i - 1) : mid(i) });
-      moves.push({ t0: Ed(i) + 10.85 * HR, t1: Ed(i) + 11.85 * HR, from: work(i, 1, c), to: work(i, 2, c), xm: c === 0 ? mid(i - 1) : mid(i + 1) });
+      if (i > 1) { const t0 = Ed(i) + (c ? 5.55 : 6.05) * HR; moves.push({ t0, t1: t0 + .5 * HR, pts: via(work(i - 1, 2, c), work(i, 1, c)) }); }
+      moves.push({ t0: Ed(i) + 10.85 * HR, t1: Ed(i) + 11.85 * HR, pts: [work(i, 1, c), work(i, 2, c)] });
     }
-    const dm = Ed(NSP) + (16.2 + c * .3) * HR; moves.push({ t0: dm, t1: dm + 2 * HR, from: work(NSP, 2, c), to: { x: 820 + c * 25, z: -12.8, hd: 0 }, xm: 0, coldEnd: true });
+    const dm = Ed(NSP) + (16.2 + (1 - c) * .3) * HR; { const fr = work(NSP, 2, c); moves.push({ t0: dm, t1: dm + 2 * HR, pts: [fr, { x: fr.x, z: lane }, { x: 820 + c * 25, z: lane, hd: 0 }], coldEnd: true }); }
+    moves.forEach(m => { m.from = m.pts[0]; m.to = m.pts.at(-1); });
     const e = addEl({ id: `CR-${c + 1}`, name: `Truck crane #${c + 1} – ZOOMLION ZTC1100R 110 t (${c ? L2('ปลาย Up Sta.', 'Up-Sta. end') : L2('ปลาย Down Sta.', 'Down-Sta. end')})`, cat: 'crane', grp: L2('Truck crane 110 t × 2', 'Truck cranes 110 t × 2'), obj: C.obj, temp: true, start: moves[0].t0, finish: moves[0].t1, rmS: dm, rmE: dm + 2 * HR, dwg: 'PPT slide 3, 31–33, 44–46', src: L2('PPT Lifting plan', 'PPT lifting plan'), noShadow: false });
     const rope = seg(.035, M.dark), luff = seg(.2, M.lamp), rod = seg(.12, M.rail), s1 = seg(.03, M.yellow), s2 = seg(.03, M.yellow);
     const hook = box(.55, .8, .45, M.steel, 0, 0, 0, fx);
@@ -514,13 +529,13 @@ function buildProject(api) {
   /* ================= LIFT-SEQUENCE PANEL (hour-by-hour erection day) ================= */
   G.SUB = [
     [5.5, ['Toolbox talk · ตรวจ Lifting plan / พื้นที่ยืนเครน', 'Toolbox talk · lifting plan & crane pads'], ['พื้นบดอัดแน่น ระบายน้ำดี ไม่มีน้ำขัง · ตรวจสลิง 1½"/2" สเก็นโอเมก้า 35/50 t', 'Compacted, drained ground · check 1½"/2" slings, 35/50 t omega shackles']],
-    [5.9, ['1. นำเครนเข้าตำแหน่งทั้ง 2 คัน (ฝั่งขาเข้า)', '1. Position both cranes (inbound side)'], ['กาง Outrigger เต็มช่วง · Boom 21.6 m · รัศมี 5–12 m', 'Full outrigger base · 21.6 m boom · radius 5–12 m']],
-    [6.45, ['2. ขนส่งชิ้นงาน – รถหางสาลี่เข้าจอดใต้ช่วง', '2. Delivery – pole trailer parks in the span'], ['โฟร์แมนเรียกรถเข้าตามลำดับ · ตรวจทิศ Down Sta. / Up Sta. ห้ามสลับ', 'Foreman calls trailers in order · check Down / Up Sta. ends – never swap']],
-    [7.0, ['3. ยกคานตัวที่ 1 (คานริม) – STEP 1', '3. Lift girder 1 (edge) – STEP 1'], ['Tandem lift 2 เครน → วางบนแผ่นยาง → Side bracing ยึด Stud bolt M16', 'Two-crane tandem lift → set on pads → side bracing with M16 stud bolts']],
+    [5.6, ['1. นำเครนเข้าตำแหน่งทั้ง 2 คัน', '1. Position both cranes'], ['เครน #2 เข้าก่อน แล้วเครน #1 · วิ่งตามช่องทางในเกาะกลาง → เข้าตำแหน่งตามแบบ Lifting plan → กาง Outrigger เต็มช่วง', 'Crane #2 first, then crane #1 · along the median lane → into the lifting-plan position → full outrigger base']],
+    [6.45, ['2. ขนส่งชิ้นงาน – รถหางสาลี่เข้าจอดชิดขอบ', '2. Delivery – pole trailer parks along the edge'], ['จอดขนานแนวสะพาน ฝั่งตรงข้ามคานชุดแรก · โฟร์แมนเรียกรถเข้าตามลำดับ · ตรวจทิศ Down Sta. / Up Sta.', 'Parks parallel to the viaduct on the side opposite the first batch · foreman calls trailers in order · check Down / Up Sta.']],
+    [7.0, ['3. ยกคานตัวที่ 1 (คานริม) – STEP 1', '3. Lift girder 1 (edge) – STEP 1'], ['ยกขึ้นจากรถ → เครนทั้ง 2 สวิงปลายคานคนละด้าน (คานหมุนในแปลน) → วางบนแผ่นยาง → Side bracing ยึด Stud bolt M16', 'Lift off the trailer → both cranes slew their own end (girder turns in plan) → set on the pads → side bracing with M16 studs']],
     [8.25, ['3. ยกคานตัวที่ 2 – STEP 2', '3. Lift girder 2 – STEP 2'], ['Top bracing C100×50×5×7.5 ยึดคาน 1–2 ก่อนยกตัวถัดไป', 'Top bracing C100×50×5×7.5 ties girders 1–2 before the next lift']],
     [9.5, ['3. ยกคานตัวที่ 3 – STEP 3', '3. Lift girder 3 – STEP 3'], ['Top bracing คาน 2–3', 'Top bracing girders 2–3']],
-    [10.85, ['4. จัดตำแหน่งเครนใหม่ (ไปฝั่งขาออก)', '4. Re-position cranes (to the outbound side)'], ['เก็บ Outrigger → ลอดใต้ช่วงข้างเคียง → กาง Outrigger', 'Retract outriggers → drive under the adjacent span → re-deploy']],
-    [11.5, ['5–6. เครนเข้าตำแหน่ง · ขนส่งคานชุดหลัง', '5–6. Cranes set · second batch delivered'], ['รถหางสาลี่จอดฝั่งขาออกของเกาะกลาง', 'Trailers park on the outbound side of the median']],
+    [10.85, ['4. จัดตำแหน่งเครนใหม่', '4. Re-position the cranes'], ['เครน #1 ย้ายไปชิดขอบด้านรถขนส่ง (ไม่ขวางคานชุดหลัง) · เครน #2 ขยับตำแหน่งเล็กน้อย · กาง Outrigger ใหม่', 'Crane #1 moves to the trailer-side edge (clear of the second batch) · crane #2 shifts slightly · outriggers re-deployed']],
+    [11.5, ['5–6. เครนเข้าตำแหน่ง · ขนส่งคานชุดหลัง', '5–6. Cranes set · second batch delivered'], ['รถหางสาลี่ชุดหลังถอยเข้าจอดชิดขอบ ด้านเดียวกับเครน #1', 'Second-batch trailers reverse in along the edge, on crane #1\'s side']],
     [12.0, ['7. ยกคานตัวที่ 4 – STEP 4', '7. Lift girder 4 – STEP 4'], ['Top bracing คาน 3–4', 'Top bracing girders 3–4']],
     [13.25, ['7. ยกคานตัวที่ 5 – STEP 5', '7. Lift girder 5 – STEP 5'], ['Top bracing คาน 4–5', 'Top bracing girders 4–5']],
     [14.5, ['7. ยกคานตัวที่ 6 (คานริม) – STEP 6', '7. Lift girder 6 (edge) – STEP 6'], ['Side bracing + Top bracing คาน 5–6', 'Side bracing + top bracing girders 5–6']],
@@ -538,7 +553,7 @@ function buildProject(api) {
   $q('seqMin').onclick = () => { const b = $q('seqBody'); b.style.display = b.style.display === 'none' ? '' : 'none'; $q('seqMin').textContent = b.style.display === 'none' ? '+' : '–'; };
   const jump = h => { G.seq.h = h; window.__app && window.__app.setNow(Ed(G.seq.cur) + h * HR); };
   G.aimViews = i => { const s = G.spans[i - 1], V = PROJECT.views, set = (k, p, t) => { V[k].pos.splice(0, 3, ...p); V[k].target.splice(0, 3, ...t); };
-    set('span', [s.xm + 26, 26, -38], [s.xm - 2, 7, 4]); set('lift', [s.xm - 6, 20, -27], [s.xm + 2, 8.5, 5]); set('section', [s.xa - 16, 13.5, .1], [s.xm, 8.6, 0]);
+    set('span', [s.xm - 16, 30, 44 * G.SD], [s.xm + 5, 6, -3 * G.SD]); set('lift', [s.xm - 8, 19, 27 * G.SD], [s.xm + 4, 8, -3 * G.SD]); set('section', [s.xa - 16, 13.5, .1], [s.xm, 8.6, 0]); set('plan', [s.xb + 3, 62, .1], [s.xb + 3, 0, 0]);
     set('median', [s.xa - 28, 2.6, -9.5], [s.xm, 7, 0]); set('traffic', [s.xb + 90, 1.6, 17.75], [s.xm, 3, 15.5]); };
   const setSpan = (i, go) => { G.seq.cur = i; $q('seqSpan').value = i; G.aimViews(i); if (go) { window.__app && window.__app.goView('span'); } };
   $q('seqSpan').onchange = e => { setSpan(+e.target.value, true); G.seq.on = false; jump(5.5); };
@@ -564,7 +579,7 @@ function updateProject(api, t, dt) {
   if (!G.init && window.__app) {        // first frame: put the clock inside the erection day (?h=hours, default 9.1 h)
     G.init = true; const h = QS.get('h') != null ? +QS.get('h') : 9.1, d0 = D(api.iso(NOW)); const sp = G.spans.find(s => s.E === d0);
     if (sp) G.setSpan(sp.i, false); if (QS.get('span')) { G.setSpan(+QS.get('span'), false); window.__app.setNow(G.Ed(+QS.get('span')) + h * HR); } else window.__app.setNow(d0 + h * HR);
-    if (QS.get('view') && ['span', 'lift', 'section', 'median', 'traffic'].includes(QS.get('view'))) { window.__app.goView(QS.get('view'), .01); }
+    if (QS.get('view') && ['span', 'lift', 'section', 'median', 'traffic', 'plan'].includes(QS.get('view'))) { window.__app.goView(QS.get('view'), .01); }
     return;
   }
   if (dt > 0) {
@@ -577,25 +592,35 @@ function updateProject(api, t, dt) {
   const attach = [];                                                  // per crane: {hook target, girder pose} while lifting
   for (const g of G.girders) {
     const e = g.e, ta = g.Ls - .55 * HR; let p = null, mode = 'final';
+    const lp = g.L / 2 - 1.0;                                          // lifting points 1.0 m from each girder end
+    const trX = () => t < g.Ls ? g.xt + g.dir * 160 * (1 - ss((t - ta) / (.5 * HR))) : t > g.Ls + .4 * HR ? g.xt + 160 * ss((t - g.Ls - .4 * HR) / (.35 * HR)) : g.xt;
+    let ends = null, yaw = 0;                                           // [end A (crane #1), end B (crane #2)] in plan
     if (t < ta) mode = 'none';
-    else if (t < g.Ls) { const u = ss((t - ta) / (.5 * HR)); p = [g.xm - 160 * (1 - u), 1.6, g.zt]; mode = 'trailer'; }
-    else if (t < g.Le) { const u = (t - g.Ls) / (g.Le - g.Ls); let y = 1.6, z = g.zt;
-      if (u >= .1 && u < .45) y = lerp(1.6, g.yHigh, ss((u - .1) / .35)); else if (u >= .45 && u < .75) { y = g.yHigh; z = lerp(g.zt, g.z, ss((u - .45) / .3)); } else if (u >= .75) { z = g.z; y = lerp(g.yHigh, SOF, ss((u - .75) / .2)); }
-      p = [g.xm, y, z]; mode = 'lift'; }
-    e.obj.position.set(...(p || [g.xm, SOF, g.z]));
+    else if (t < g.Ls) { const x = trX(); p = [x, 1.6, g.zt]; ends = [{ x: x - lp, z: g.zt }, { x: x + lp, z: g.zt }]; mode = 'trailer'; }
+    else if (t < g.Le) { const u = (t - g.Ls) / (g.Le - g.Ls); let y = 1.6;
+      const pk = [{ x: g.xt - lp, z: g.zt }, { x: g.xt + lp, z: g.zt }], st = [{ x: g.xm - lp, z: g.z }, { x: g.xm + lp, z: g.z }];
+      if (u < .1) ends = pk; else if (u < .35) { ends = pk; y = lerp(1.6, g.yHigh, ss((u - .1) / .25)); }
+      else if (u < .8) {   // swing at height: crane #1 brings end A across first, crane #2 follows with end B – the girder turns in plan, as on the lifting-plan drawings
+        const v = (u - .35) / .45, fA = ss(Math.min(1, v * 1.4)), fB = ss(Math.max(0, (v - .3) / .7));
+        const A0 = { x: lerp(pk[0].x, st[0].x, fA), z: lerp(pk[0].z, st[0].z, fA) }, B0 = { x: lerp(pk[1].x, st[1].x, fB), z: lerp(pk[1].z, st[1].z, fB) };
+        const mx = (A0.x + B0.x) / 2, mz = (A0.z + B0.z) / 2, d = Math.hypot(B0.x - A0.x, B0.z - A0.z) || 1, ux = (B0.x - A0.x) / d, uz = (B0.z - A0.z) / d;   // keep the girder rigid
+        ends = [{ x: mx - lp * ux, z: mz - lp * uz }, { x: mx + lp * ux, z: mz + lp * uz }]; y = g.yHigh; }
+      else { ends = st; y = lerp(g.yHigh, SOF, ss((u - .8) / .15)); }
+      p = [(ends[0].x + ends[1].x) / 2, y, (ends[0].z + ends[1].z) / 2]; yaw = Math.atan2(-(ends[1].z - ends[0].z), ends[1].x - ends[0].x); mode = 'lift'; }
+    e.obj.position.set(...(p || [g.xm, SOF, g.z])); e.obj.rotation.y = yaw;
     if (mode === 'trailer') { e.lookKey = null; e.obj.visible = !catHidden.girder; e.obj.traverse(m => { if (m.isMesh) m.material = m.material === M.ghost ? M.bimWip : m.material === M.blueFill ? m.material : m.userData.base; }); }
     else if (mode === 'lift') e.obj.traverse(m => { if (m.isMesh && m.material === M.wip) m.material = m.userData.base; });
     // trailer for this girder
-    if (t >= ta && t < g.Ls + .75 * HR) { const r = G.tr[g.k % 2]; let x = g.xm;
-      if (t < g.Ls) x = g.xm - 160 * (1 - ss((t - ta) / (.5 * HR))); else if (t > g.Ls + .4 * HR) x = g.xm + 160 * ss((t - g.Ls - .4 * HR) / (.35 * HR));
+    if (t >= ta && t < g.Ls + .75 * HR) { const r = G.tr[g.k % 2], x = trX();
       r.root.visible = !blue; r.tractor.position.set(x + g.L / 2 - 1.5, 0, g.zt); r.dolly.position.set(x - g.L / 2 + 1.5, 0, g.zt);
       const a = new THREE.Vector3(x - g.L / 2 + 2.3, 1.0, g.zt), b = new THREE.Vector3(x + g.L / 2 - 2.5, 1.0, g.zt); r.pole.position.copy(a).add(b).multiplyScalar(.5); r.pole.scale.set(.12, .12, a.distanceTo(b)); r.pole.lookAt(b);
       r.lb.s.position.set(x, 6.2, g.zt); }
     // hook targets for the two cranes
     if (t >= g.Ls - .3 * HR && t < g.Le + .25 * HR) {
-      const gp = p || [g.xm, SOF, g.z], pts = [new THREE.Vector3(gp[0] - g.L / 2 + 1.0, gp[1] + g.H, gp[2]), new THREE.Vector3(gp[0] + g.L / 2 - 1.0, gp[1] + g.H, gp[2])];
+      const gp = p || [g.xm, SOF, g.z], en = ends || [{ x: g.xm - lp, z: g.z }, { x: g.xm + lp, z: g.z }];
+      const pts = en.map(q => new THREE.Vector3(q.x, gp[1] + g.H, q.z)), ax = pts[1].clone().sub(pts[0]).setY(0).normalize();
       const w = t < g.Ls ? ss((t - (g.Ls - .3 * HR)) / (.3 * HR)) : t < g.Le ? 1 : 1 - ss((t - g.Le) / (.25 * HR));
-      [0, 1].forEach(c => attach[c] = { lp: pts[c], w, slung: t >= g.Ls && t < g.Le });
+      [0, 1].forEach(c => attach[c] = { lp: pts[c], ax, w, slung: t >= g.Ls && t < g.Le });
     }
   }
   // ---------- cranes ----------
@@ -604,7 +629,7 @@ function updateProject(api, t, dt) {
     // pose from the move list
     let pose = null, last = C.moves[0].from;
     for (const m of C.moves) { if (t < m.t0) break; if (t <= m.t1) { const u = (t - m.t0) / (m.t1 - m.t0);
-        const pts = m.from.z * m.to.z < 0 ? [m.from, { x: m.xm, z: m.from.z }, { x: m.xm, z: m.to.z }, m.to] : [m.from, m.to];
+        const pts = m.pts;
         if (u < .15) pose = { ...m.from, out: m.cold ? 0 : 1 - u / .15, moving: true };
         else if (u > .88) pose = { ...m.to, out: m.coldEnd ? 0 : (u - .88) / .12, moving: true };
         else { const v = ss((u - .15) / .73), Ls = []; let tot = 0; for (let n = 1; n < pts.length; n++) { const l = Math.hypot(pts[n].x - pts[n - 1].x, pts[n].z - pts[n - 1].z); Ls.push(l); tot += l; }
@@ -618,7 +643,7 @@ function updateProject(api, t, dt) {
     C.outs.forEach(q => { const u = q.userData, dd = lerp(1.35, 3.3, pose.out); u.beam.scale.z = dd; u.beam.position.z = u.s * dd / 2; u.jack.position.z = u.pd.position.z = u.s * dd; u.pd.position.y = lerp(-.55, -1.2, pose.out); u.jack.scale.y = lerp(.25, 1, pose.out); u.jack.position.y = lerp(-.12, -.45, pose.out); });
     const f = pose.moving ? pose.out : 1;
     const sc = new THREE.Vector3(pose.x - 2.5 * Math.cos(pose.hd), 0, pose.z + 2.5 * Math.sin(pose.hd));
-    const sg = Math.sign(pose.z) || 1, idle = new THREE.Vector3(sc.x + (C.c === 0 ? 3.5 : -3.5), 11.5, sc.z - sg * 5);
+    const idle = new THREE.Vector3(sc.x + (C.c === 0 ? 4.5 : -4.5), 11.5, sc.z * .6);
     const A = attach[C.c]; let H = idle.clone(); if (A && !pose.moving) H = idle.clone().lerp(A.lp.clone().add(new THREE.Vector3(0, 3.2, 0)), A.w);
     const dx = H.x - sc.x, dz = H.z - sc.z, yawW = Math.atan2(-dz, dx), th = Math.acos(clamp((Math.hypot(dx, dz) + 1.4) / BLc, 0, .985));
     C.tur.rotation.y = angLerp(0, yawW - pose.hd, f); C.piv.rotation.z = lerp(.1, th, f);
@@ -630,7 +655,7 @@ function updateProject(api, t, dt) {
     const lA = C.tur.localToWorld(new THREE.Vector3(.9, .7, 0)), lB = C.piv.localToWorld(new THREE.Vector3(6.5, -.45, 0)), lM = lA.clone().lerp(lB, .55);
     setSeg(C.luff, lA, lM); setSeg(C.rod, lM, lB);
     const slung = A && A.slung && !pose.moving;
-    if (slung) { const hb = hook.clone().add(new THREE.Vector3(0, -.4, 0)); setSeg(C.s1, hb, A.lp.clone().add(new THREE.Vector3(-.35, 0, 0))); setSeg(C.s2, hb, A.lp.clone().add(new THREE.Vector3(.35, 0, 0))); }
+    if (slung) { const hb = hook.clone().add(new THREE.Vector3(0, -.4, 0)); setSeg(C.s1, hb, A.lp.clone().addScaledVector(A.ax, -.35)); setSeg(C.s2, hb, A.lp.clone().addScaledVector(A.ax, .35)); }
     C.rope.visible = C.hook.visible = C.luff.visible = C.rod.visible = vis; C.s1.visible = C.s2.visible = vis && !!slung;
     C.lb.s.position.set(pose.x, 23.5, pose.z);
   }
@@ -647,8 +672,9 @@ function updateProject(api, t, dt) {
     const s = G.spans[G.seq.cur - 1];
     if (sp && h >= 5.4 && h < 16.5) { const n = G.stepIdx(h), S = G.SUB[n]; $q('seqStep').innerHTML = `<b>Span ${sp.i} · ${tx(S[1])}</b><span>${tx(S[2])}</span>`; }
     else { const nx = G.spans.find(x => x.E + 16.5 * HR > t); $q('seqStep').innerHTML = nx ? `<b>${L2('ไม่มีงานยก ณ เวลานี้', 'No lifting at this time')}</b><span>${L2('ยกครั้งถัดไป', 'Next lift')}: Span ${nx.i} · ${new Date(nx.E).toLocaleDateString(LANG === 'en' ? 'en-GB' : 'th-TH', { day: 'numeric', month: 'short' })} 07:00 · ${L2('กด ▶ เล่นการยก', 'press ▶ Play lift')}</span>` : `<b>${L2('ยกคานครบ 108 ตัวแล้ว', 'All 108 girders erected')}</b>`; }
-    const pct = s.L < 19 ? '74.05' : '72.66', R0 = s.L < 19 ? '12' : '8–9', cap = s.L < 19 ? '28.5' : '43.5';
-    $q('seqData').innerHTML = `Span ${s.i}: ${L2('คาน', 'girder')} ${s.L.toFixed(2)} m · H ${s.H} m · ≈ ${s.W} t → ${(s.W / 2).toFixed(0)} t/${L2('เครน', 'crane')}<br>ZTC1100R · Boom 21.6 m · R ${R0} m · ${L2('รับได้', 'capacity')} ${cap} t · Lifting capacity ${pct} % (PPT)`;
+    const cs = G.caseOf(s.i), K = G.CASES[cs], cap = cs === 'A' ? '28.5' : '43.5';
+    const who = cs === 'A' ? L2('เครน #1 ใต้ช่วงที่ยก · เครน #2 ในช่วงถัดไป', 'crane #1 under this span · crane #2 in the next span') : L2('เครน #1 ถัดตอม่อต้นช่วง · เครน #2 เลยตอม่อปลายช่วง', 'crane #1 next to the start pier · crane #2 past the end pier');
+    $q('seqData').innerHTML = `<b class="acc">Case ${cs}</b> (${cs === 'A' ? L2('Span 18 m · ≤ 38 t', '18 m span · ≤ 38 t') : L2('Span 20–30 m · ≤ 58 t', '20–30 m span · ≤ 58 t')}) · ${who}<br>Span ${s.i}: ${L2('คาน', 'girder')} ${s.L.toFixed(2)} m · ≈ ${s.W} t → ${(s.W / 2).toFixed(0)} t/${L2('เครน', 'crane')} · ZTC1100R Boom 21.6 m · R ${K.R} m · ${L2('รับได้', 'capacity')} ${cap} t · ${K.cap} % · ${L2('แบบ', 'dwg')} ${K.pdf}`;
   }
 }
 const BLc = 21.6;
