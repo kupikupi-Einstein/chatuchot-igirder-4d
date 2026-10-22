@@ -267,6 +267,7 @@ const PROJECT = {
     section: { t: ['แนวคาน G1–G6 / Bracing', 'Girder lines G1–G6 / bracing'], pos: [55, 13.5, 0.1], target: [75, 8.5, 0] },
     median: { t: ['ใต้สะพาน (เกาะกลาง)', 'Under the deck (median)'], pos: [40, 2.6, -9], target: [80, 7, 0] },
     traffic: { t: ['มุมผู้ขับขี่ขาเข้า – ปิดไหล่ทางขวา', 'Inbound driver – right shoulder closed'], pos: [170, 1.6, 13], target: [80, 3, 9] },
+    lock: { t: ['ใกล้: Side / Top bracing (Lock Girder)', 'Close-up: side / top bracing (Lock Girder)'], pos: [92, 13, 12], target: [98, 8.6, 1] },
     plan: { t: ['แปลนช่วงที่ยก (เทียบแบบ Lifting plan)', 'Plan of the span (compare with the lifting plan)'], pos: [85, 75, .1], target: [85, 0, 0] },
     top: { t: ['มุมบน (Plan)', 'Top (plan)'], pos: [240, 520, 1], target: [240, 0, 0] },
   },
@@ -437,18 +438,52 @@ function buildProject(api) {
   PIERS_X.forEach(p => { const o = makePier(p, M.conc, []); ctxAdd(o); });   // further piers MLP1-19L… and the R line (outside this MS) – context only
 
   /* ================= GIRDERS, BEARINGS, BRACING, DIAPHRAGMS per span ================= */
+  /* Precast I-girder (Lock Girder model / MS details): H = 1.70 m, top flange 0.61 m, web 0.18 m, bottom bulb 0.65 m;
+     solid end blocks 0.9 m + 0.6 m taper at both ends; shear stirrups (U-bars) projecting 0.15 m above the top flange @ 0.20 m. */
   const gCache = {};
+  const secI = H => { const bf = .65, tb = .2, tw = .18, tf = .61, tt = .13;
+    return [[-bf / 2, 0], [bf / 2, 0], [bf / 2, tb], [tw / 2, tb + .2], [tw / 2, H - tt - .1], [tf / 2, H - tt], [tf / 2, H], [-tf / 2, H], [-tf / 2, H - tt], [-tw / 2, H - tt - .1], [-tw / 2, tb + .2], [-bf / 2, tb]]; };
   function girderGeo(L, H) { const k = L.toFixed(2) + '_' + H; if (gCache[k]) return gCache[k];
-    const bf = .65, tb = .2, tw = .18, tf = .85, tt = .12;
-    const P = [[-bf / 2, 0], [bf / 2, 0], [bf / 2, tb], [tw / 2, tb + .15], [tw / 2, H - tt - .1], [tf / 2, H - tt], [tf / 2, H], [-tf / 2, H], [-tf / 2, H - tt], [-tw / 2, H - tt - .1], [-tw / 2, tb + .15], [-bf / 2, tb]];
-    const parts = [prismX(P.reverse(), L)]; [-1, 1].forEach(s => { const b = new THREE.BoxGeometry(.7, H - .02, .64); b.translate(s * (L / 2 - .35), H / 2, 0); parts.push(b.toNonIndexed()); });
-    parts[0] = parts[0].index ? parts[0].toNonIndexed() : parts[0];
-    return gCache[k] = api.mergeGeometries(parts); }
+    const EB = .9, TP = .6, parts = [], ni = g => (g.index ? g.toNonIndexed() : g);
+    const mid = prismX(secI(H).reverse(), L - 2 * (EB + TP)); parts.push(ni(mid));
+    [-1, 1].forEach(sd => {
+      const blk = new THREE.BoxGeometry(EB, H, .65); blk.translate(sd * (L / 2 - EB / 2), H / 2, 0); parts.push(ni(blk));
+      // taper: loft from the full block section to the I section over TP (8 slices of the web thickness)
+      for (let n = 0; n < 6; n++) { const u0 = n / 6, w = lerp(.65, .18, (n + .5) / 6), g = new THREE.BoxGeometry(TP / 6 + .002, H - .45, w);
+        g.translate(sd * (L / 2 - EB - TP * (n + .5) / 6), .2 + (H - .45) / 2 + .05, 0); parts.push(ni(g)); }
+    });
+    parts.forEach(p => { if (p.attributes.uv) p.deleteAttribute('uv'); });
+    gCache[k] = api.mergeGeometries(parts);
+    // stirrups (separate geometry so they get the rebar colour)
+    const bars = [], legs = [-.17, .17];
+    for (let x = -L / 2 + .15; x <= L / 2 - .15; x += .2) {
+      legs.forEach(z => { const g = new THREE.BoxGeometry(.016, .17, .016); g.translate(x, H + .07, z); bars.push(ni(g)); });
+      const t = new THREE.BoxGeometry(.016, .016, .36); t.translate(x, H + .155, 0); bars.push(ni(t));
+      const hk = new THREE.BoxGeometry(.016, .016, .08); hk.translate(x + .03, H + .15, (Math.round(x * 5) % 2 ? 1 : -1) * .2); bars.push(ni(hk));
+    }
+    bars.forEach(p => { if (p.attributes.uv) p.deleteAttribute('uv'); });
+    gCache[k + 'b'] = api.mergeGeometries(bars);
+    return gCache[k]; }
+  const rebarM = new THREE.MeshStandardMaterial({ color: 0x6b5a4a, metalness: .6, roughness: .55 });
   const steelC = M.steel;
-  function sideFrame(grp, xe, s, zf, top) {   // side bracing frame 810 × 850 (MS "SIDE BRACING") on the outer face of an edge girder; s = direction into the span
-    const P = (dx, y) => new THREE.Vector3(xe + s * dx, y, zf), y0 = top - .85;
-    [[P(.05, y0), P(.05, top)], [P(.76, y0), P(.76, top)], [P(.05, top), P(.76, top)], [P(.05, y0), P(.76, y0)], [P(.405, y0), P(.05, top)], [P(.405, y0), P(.76, top)], [P(.05, top + .05), P(-.25, top + .05)]].forEach(([a, b]) => grp.add(member(a, b, .09, steelC)));
+  /* SIDE BRACING (MS detail, 810 × 850 mm, C100×50×5×7.5): horizontal channel frame lying on the top of the crossbeam stem, its two side channels
+     embracing the end of the edge girder's 610 mm top flange (154 mm overlap), base channel + 60° diagonals, anchored with M16 stud bolts into the crossbeam.
+     xe = girder end, s = +1 when the stem is towards +x, zc = edge-girder line, y0 = stem top. */
+  function sideFrame(grp, xe, s, zc, y0) {
+    const y = y0 + .03, U = u => xe + s * u, ch = (u0, u1, v0, v1) => grp.add(member(new THREE.Vector3(U(u0), y, zc + v0), new THREE.Vector3(U(u1), y, zc + v1), .07, steelC));
+    ch(-.154, .696, -.355, -.355); ch(-.154, .696, .355, .355);              // side channels (610 + 2×5 clear + 2×50 web)
+    ch(.646, .646, -.405, .405);                                             // base channel
+    ch(.596, .196, -.02, -.355); ch(.596, .196, .02, .355);                  // 60° diagonals
+    [[.646, -.36], [.646, .36], [.196, -.405], [.196, .405]].forEach(([u, v]) => { const b = mesh(new THREE.CylinderGeometry(.03, .03, .2, 6), M.dark); b.position.set(U(u), y + .02, zc + v); grp.add(b); });   // stud bolts
   }
+  /* TOP BRACING: C100×50×5×7.5 across the girder tops 0.25 m from the girder ends, on DETAIL-2 brackets (300 mm channel post + knee + PL100×50×5)
+     on both sides of each top flange; continuous from side bracing to side bracing, added one bay per girder as erected. */
+  function bracket(grp, x, zc, top) {
+    [-1, 1].forEach(v => { const z = zc + v * .36; const p = mesh(new THREE.BoxGeometry(.1, .3, .05), steelC); p.position.set(x, top - .05, z); grp.add(p);
+      grp.add(member(new THREE.Vector3(x, top - .19, z), new THREE.Vector3(x, top + .09, z + v * .13), .035, steelC));
+      const pl = mesh(new THREE.BoxGeometry(.1, .01, .1), steelC); pl.position.set(x, top + .105, z); grp.add(pl); });
+  }
+  const topCh = (grp, x, z0, z1, top) => grp.add(member(new THREE.Vector3(x, top + .16, z0), new THREE.Vector3(x, top + .16, z1), .09, steelC));
   G.girders = []; G.spanDone = []; G.spans = [];
   const SP = i => L2(`Span ${i}`, `Span ${i}`);
   for (let i = 1; i <= NSP; i++) {
@@ -464,7 +499,7 @@ function buildProject(api) {
       addEl({ id: `EB-${i}`, name: `${SP(i)} · Elastomeric bearing pads 0.45×0.35 m (12 nos.)`, cat: 'bearing', grp, obj: o, start: E - 8 * DAY, finish: E - 7 * DAY, dwg: 'MS §6.1 · Typical section of bearing pad', src: srcA }); }
     // girders G1..G6
     for (let k = 0; k < 6; k++) {
-      const o = new THREE.Group(), m = mesh(girderGeo(L, H), pc); m.position.y = -DS; o.add(m); o.position.set(xm, SOF, GZ[k]); o.rotation.z = tilt;
+      const o = new THREE.Group(), m = mesh(girderGeo(L, H), pc); m.position.y = -DS; o.add(m); const rb = mesh(gCache[L.toFixed(2) + '_' + H + 'b'], rebarM); rb.position.y = -DS; o.add(rb); o.position.set(xm, SOF, GZ[k]); o.rotation.z = tilt;
       const Ls = E + LH[k] * HR, Le = Ls + LIFT, b = k < 3 ? 0 : 1, K = CASES[caseOf(i)], edge = k === 0 || k === 5, Ld = (DWL[i] || [])[k];
       const e = addEl({ id: `P${i - 1}L-${k + 1}`, name: `${SP(i)} · P${i - 1}L-${k + 1} ${edge ? 'C-Girder (CFV, edge)' : 'I-Girder (IFV)'} · L = ${(Ld || L).toFixed(3)} m · ≈ ${W} t · Case ${caseOf(i)}`, cat: 'girder', grp, obj: o, start: Ls, finish: Le, dwg: `MS §6.3 STEP ${k + 1} · Method Erection I Girder ${K.pdf}`, src: srcA, qty: { L, H, vol: W / 2.5 }, loc: `x ${gx0.toFixed(2)} – ${gx1.toFixed(2)} m · line G${k + 1} (z ${GZ[k] > 0 ? '+' : ''}${GZ[k]} m)` });
       const T = K.tr[b], an = T[2] * Math.PI / 180, ux = Math.cos(an), uz = -SD * Math.sin(an);
@@ -475,9 +510,14 @@ function buildProject(api) {
     const rmS = E + 4 * DAY + 8 * HR, rmE = E + 4 * DAY + 12 * HR;
     const braceEl = (id, name, k, build) => { const o = new THREE.Group(); build(o); const s = E + (LH[k] + .75) * HR;
       addEl({ id, name, cat: 'brace', grp, obj: o, temp: true, start: s, finish: s + .5 * HR, rmS, rmE, dwg: 'MS §6.3 Side bracing / Detail 1–2', src: srcA, noShadow: true }); };
-    braceEl(`SB-${i}-1`, `${SP(i)} · Side bracing G1 (STEP 1)`, 0, o => [[gx0, 1], [gx1, -1]].forEach(([x, s]) => sideFrame(o, x, s, GZ[0] + .38, top)));
-    for (let j = 1; j < 6; j++) braceEl(`TB-${i}-${j}`, `${SP(i)} · Top bracing G${j}–G${j + 1} C100×50×5×7.5 (STEP ${j + 1})`, j, o => [gx0 + .4, gx1 - .4].forEach(x => o.add(member(new THREE.Vector3(x, top + .06, GZ[j - 1] + .3), new THREE.Vector3(x, top + .06, GZ[j] - .3), .1, steelC))));
-    braceEl(`SB-${i}-6`, `${SP(i)} · Side bracing G6 (STEP 6)`, 5, o => [[gx0, 1], [gx1, -1]].forEach(([x, s]) => sideFrame(o, x, s, GZ[5] - .38, top)));
+    const ends = [[gx0, -1, i - 1], [gx1, 1, i]], xb_ = (xe, s) => xe - s * .25, tops = () => top - DS;
+    const out = z => z + Math.sign(z) * .405;                                                    // outer end of the top bracing at an edge girder
+    braceEl(`SB-${i}-1`, `${SP(i)} · Side bracing G1 (both ends) + top-bracing bracket (STEP 1)`, 0, o => ends.forEach(([xe, sd, j]) => {
+      sideFrame(o, xe, sd, GZ[0], stemTop(j)); bracket(o, xb_(xe, sd), GZ[0], tops()); topCh(o, xb_(xe, sd), out(GZ[0]), GZ[0], tops()); }));
+    for (let j = 1; j < 6; j++) braceEl(`TB-${i}-${j}`, `${SP(i)} · Top bracing G${j}–G${j + 1} C100×50×5×7.5 + bracket (STEP ${j + 1})`, j, o => ends.forEach(([xe, sd]) => {
+      bracket(o, xb_(xe, sd), GZ[j], tops()); topCh(o, xb_(xe, sd), GZ[j - 1], GZ[j], tops()); }));
+    braceEl(`SB-${i}-6`, `${SP(i)} · Side bracing G6 (both ends) (STEP 6)`, 5, o => ends.forEach(([xe, sd, j]) => {
+      sideFrame(o, xe, sd, GZ[5], stemTop(j)); topCh(o, xb_(xe, sd), GZ[5], out(GZ[5]), tops()); }));
     // diaphragms
     { const o = new THREE.Group(); [gx0 + .3, gx1 - .3].forEach(x => box(.6, H - .27, 12.2, M.conc, x, SOF + .15 + (H - .27) / 2, 0, o));
       addEl({ id: `ED-${i}`, name: `${SP(i)} · End diaphragms (both ends)`, cat: 'diaph', grp, obj: o, kind: 'cast', start: E + DAY, cast: E + 3 * DAY + 10 * HR, finish: E + 4 * DAY, dwg: 'MS §6.3', src: srcA, qty: { vol: 2 * .6 * (H - .27) * 10.2 } }); }
@@ -592,7 +632,7 @@ function buildProject(api) {
   $q('seqMin').onclick = () => { const b = $q('seqBody'); b.style.display = b.style.display === 'none' ? '' : 'none'; $q('seqMin').textContent = b.style.display === 'none' ? '+' : '–'; };
   const jump = h => { G.seq.h = h; window.__app && window.__app.setNow(Ed(G.seq.cur) + h * HR); };
   G.aimViews = i => { const s = G.spans[i - 1], V = PROJECT.views, set = (k, p, t) => { V[k].pos.splice(0, 3, ...p); V[k].target.splice(0, 3, ...t); };
-    set('span', [s.xm - 16, 30, 44 * G.SD], [s.xm + 5, 6, -3 * G.SD]); set('lift', [s.xm - 8, 19, 27 * G.SD], [s.xm + 4, 8, -3 * G.SD]); set('section', [s.xa - 16, 13.5, .1], [s.xm, 8.6, 0]); set('plan', [s.xb + 3, 62, .1], [s.xb + 3, 0, 0]);
+    set('span', [s.xm - 16, 30, 44 * G.SD], [s.xm + 5, 6, -3 * G.SD]); set('lift', [s.xm - 8, 19, 27 * G.SD], [s.xm + 4, 8, -3 * G.SD]); set('section', [s.xa - 16, 13.5, .1], [s.xm, 8.6, 0]); set('plan', [s.xb + 3, 62, .1], [s.xb + 3, 0, 0]); { const y = PIERS[s.i].bch - DATUM + .8; set('lock', [s.xb - 7.5, y + 5.2, 9.5], [s.xb - 1.6, y + 1.2, 1]); }
     set('median', [s.xa - 28, 2.6, -9.5], [s.xm, 7, 0]); set('traffic', [s.xb + 90, 1.6, G.edge('inIn')(s.xb + 90) + 4.75], [s.xm, 3, 9]); };
   const setSpan = (i, go) => { G.seq.cur = i; $q('seqSpan').value = i; G.aimViews(i); if (go) { window.__app && window.__app.goView('span'); } };
   $q('seqSpan').onchange = e => { setSpan(+e.target.value, true); G.seq.on = false; jump(5.5); };
@@ -618,7 +658,7 @@ function updateProject(api, t, dt) {
   if (!G.init && window.__app) {        // first frame: put the clock inside the erection day (?h=hours, default 9.1 h)
     G.init = true; const h = QS.get('h') != null ? +QS.get('h') : 9.1, d0 = D(api.iso(NOW)); const sp = G.spans.find(s => s.E === d0);
     if (sp) G.setSpan(sp.i, false); if (QS.get('span')) { G.setSpan(+QS.get('span'), false); window.__app.setNow(G.Ed(+QS.get('span')) + h * HR); } else window.__app.setNow(d0 + h * HR);
-    if (QS.get('view') && ['span', 'lift', 'section', 'median', 'traffic', 'plan'].includes(QS.get('view'))) { window.__app.goView(QS.get('view'), .01); }
+    if (QS.get('view') && ['span', 'lift', 'section', 'median', 'traffic', 'plan', 'lock'].includes(QS.get('view'))) { window.__app.goView(QS.get('view'), .01); }
     return;
   }
   if (dt > 0) {
